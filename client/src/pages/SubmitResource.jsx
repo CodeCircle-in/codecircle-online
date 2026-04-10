@@ -4,6 +4,7 @@ import axios from 'axios'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
+import { fileToDataUrl } from '../lib/utils'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
@@ -35,6 +36,13 @@ export default function SubmitResource() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const dataUrl = await fileToDataUrl(file)
+    setForm(f => ({ ...f, image: dataUrl }))
   }
 
   if (loading || !user) {
@@ -94,12 +102,16 @@ export default function SubmitResource() {
             placeholder="Resource URL"
             className="input-base"
           />
-          <input
-            value={form.image}
-            onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-            placeholder="Image URL (optional)"
-            className="input-base"
-          />
+          <div className="flex flex-col gap-2">
+            <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100"
+            />
+            {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
+          </div>
 
           {message && <div className="text-sm text-neutral-300">{message}</div>}
 

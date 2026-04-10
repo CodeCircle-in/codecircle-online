@@ -5,6 +5,7 @@ import { Plus, Trash2, Edit2, X, Check } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
+import { fileToDataUrl } from '../lib/utils'
 
 const API = import.meta.env.VITE_API_URL || '/api'
 
@@ -83,6 +84,13 @@ export default function Admin() {
     setTimeout(() => setMsg(''), 3000)
   }
 
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const dataUrl = await fileToDataUrl(file)
+    setForm(f => ({ ...f, image: dataUrl }))
+  }
+
   if (loading) return null
 
   return (
@@ -144,7 +152,11 @@ export default function Admin() {
                   <option value="">No category</option>
                   {CATEGORIES.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
                 </select>
-                <input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="Image URL (optional)" className="input-base" />
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100" />
+                  {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
+                </div>
                 <input value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} placeholder="Resource link (optional)" className="input-base" />
                 <textarea
                   required
@@ -223,7 +235,11 @@ export default function Admin() {
                   {CATEGORIES.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
                 </select>
                 <input required value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} placeholder="Resource URL" className="input-base" />
-                <input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="Image URL (optional)" className="input-base" />
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100" />
+                  {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
+                </div>
                 <div className="flex gap-3">
                   <button type="submit" disabled={submitting} className="btn-primary text-sm">
                     {submitting ? 'Saving...' : 'Save Resource'}

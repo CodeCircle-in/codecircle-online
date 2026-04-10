@@ -8,7 +8,10 @@ router.get('/', async (req, res) => {
     const { limit = 12, category } = req.query
     const query = {}
     if (category) query.category = category
-    const resources = await Resource.find(query).sort({ createdAt: -1 }).limit(Number(limit))
+    const resources = await Resource.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .populate('submittedBy', 'name avatar')
     res.json({ resources })
   } catch (err) {
     res.status(500).json({ error: err.message })
