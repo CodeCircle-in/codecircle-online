@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
 import { fileToDataUrl, getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -59,6 +60,12 @@ export default function SubmitResource() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title="Submit Resource"
+        description="Share a useful resource, tutorial, tool, or opportunity with the CodeCircle community."
+        path="/submit-resource"
+        noindex
+      />
       <div className="container-width max-w-3xl">
         <div className="mb-10">
           <p className="label-text mb-3">Submit Resource</p>

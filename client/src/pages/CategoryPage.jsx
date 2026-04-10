@@ -5,6 +5,7 @@ import { Calendar, User, ArrowLeft } from 'lucide-react'
 import axios from 'axios'
 import { CATEGORIES } from '../components/CategoriesSection'
 import { getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -35,6 +36,11 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title={`${category.title} Resources`}
+        description={category.description}
+        path={`/category/${slug}`}
+      />
       <div className="container-width">
         {/* Back */}
         <Link to="/#topics" className="btn-ghost text-sm mb-8 inline-flex">

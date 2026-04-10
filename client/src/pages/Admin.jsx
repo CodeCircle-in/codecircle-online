@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
 import { fileToDataUrl, getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -95,6 +96,12 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title="Admin Dashboard"
+        description="Manage posts, resources, and users for CodeCircle."
+        path="/admin"
+        noindex
+      />
       <div className="container-width">
         <div className="mb-10">
           <p className="label-text mb-3">Admin</p>

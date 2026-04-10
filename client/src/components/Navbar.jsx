@@ -84,6 +84,18 @@ export default function Navbar() {
                   )}
                 </li>
               ))}
+              {user && (
+                <li>
+                  <Link
+                    to="/dashboard"
+                    className={`px-3 py-1.5 text-sm rounded-lg hover:bg-white/5 transition-all ${
+                      location.pathname === '/dashboard' ? 'text-white' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
               {user?.isAdmin && (
                 <li>
                   <Link to="/admin" className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">
@@ -155,6 +167,26 @@ export default function Navbar() {
                   )}
                 </li>
               ))}
+              {user && (
+                <li>
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+              )}
+              {user?.isAdmin && (
+                <li>
+                  <Link
+                    to="/admin"
+                    className="block px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                  >
+                    Admin
+                  </Link>
+                </li>
+              )}
             </ul>
             <div className="mt-3 pt-3 border-t border-white/8">
               {user ? (

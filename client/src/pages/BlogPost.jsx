@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Calendar, User, ArrowLeft, Tag } from 'lucide-react'
 import axios from 'axios'
 import { getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -47,6 +48,13 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title={post.title}
+        description={post.excerpt || post.content?.slice(0, 155) || 'Read this CodeCircle blog post.'}
+        path={`/blog/${id}`}
+        image={post.image || 'https://codecircle.online/og-image.png'}
+        type="article"
+      />
       <div className="container-width max-w-2xl">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           {/* Back */}

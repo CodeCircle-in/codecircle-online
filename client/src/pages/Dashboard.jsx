@@ -6,6 +6,7 @@ import { Edit2, Plus, Save, Sparkles, UploadCloud, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
 import { fileToDataUrl, getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -117,6 +118,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title="Dashboard"
+        description="Manage your uploaded resources and contributions on CodeCircle."
+        path="/dashboard"
+        noindex
+      />
       <div className="container-width">
         <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>

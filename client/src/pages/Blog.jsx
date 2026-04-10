@@ -5,6 +5,7 @@ import { Calendar, User, Search } from 'lucide-react'
 import axios from 'axios'
 import { CATEGORIES } from '../components/CategoriesSection'
 import { getApiBase } from '../lib/utils'
+import Seo from '../components/Seo'
 
 const API = getApiBase()
 
@@ -33,6 +34,11 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6">
+      <Seo
+        title="Blog"
+        description="Read the latest CodeCircle posts on student opportunities, tutorials, community updates, and curated tech insights."
+        path="/blog"
+      />
       <div className="container-width">
         {/* Header */}
         <motion.div
