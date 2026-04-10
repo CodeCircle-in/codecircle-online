@@ -4,6 +4,7 @@ import CategoriesSection from '../components/CategoriesSection'
 import BlogPreview from '../components/BlogPreview'
 import CommunitiesSection from '../components/CommunitiesSection'
 import HallOfFame from '../components/HallOfFame'
+import RecentUploads from '../components/RecentUploads'
 import JoinSection from '../components/JoinSection'
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
       <CategoriesSection />
       <BlogPreview />
       <HallOfFame />
+      <RecentUploads />
       <CommunitiesSection />
       <JoinSection />
     </>

@@ -34,7 +34,7 @@ export default function JoinSection() {
               </div>
             ) : (
               <>
-                <button onClick={() => loginWithGoogle('/submit-resource')} className="btn-primary flex items-center gap-2">
+                <button onClick={() => loginWithGoogle('/dashboard')} className="btn-primary flex items-center gap-2">
                   <GoogleIcon />
                   Sign in with Google
                 </button>
