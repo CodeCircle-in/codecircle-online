@@ -4,8 +4,9 @@ import { motion } from 'framer-motion'
 import { Calendar, User, ArrowLeft } from 'lucide-react'
 import axios from 'axios'
 import { CATEGORIES } from '../components/CategoriesSection'
+import { getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 export default function CategoryPage() {
   const { slug } = useParams()

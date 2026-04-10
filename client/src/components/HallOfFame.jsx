@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Github, Link2, Sparkles } from 'lucide-react'
 import axios from 'axios'
+import { getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 const REPO = import.meta.env.VITE_GITHUB_REPO || 'codecircle-online/codecircle-online'
 
 export default function HallOfFame() {

@@ -5,9 +5,9 @@ import { Plus, Trash2, Edit2, X, Check } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
-import { fileToDataUrl } from '../lib/utils'
+import { fileToDataUrl, getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 const TABS = ['Posts', 'Resources', 'Users']
 

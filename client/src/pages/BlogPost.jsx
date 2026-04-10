@@ -3,8 +3,9 @@ import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Calendar, User, ArrowLeft, Tag } from 'lucide-react'
 import axios from 'axios'
+import { getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 export default function BlogPost() {
   const { id } = useParams()

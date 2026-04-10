@@ -31,14 +31,24 @@ const ensureGoogleOAuthConfigured = (req, res, next) => {
 const makeToken = (user) =>
   jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 
-// Initiate Google OAuth
-router.get('/google', ensureGoogleOAuthConfigured, (req, res, next) => {
-  const redirectTo = normalizeRedirectTo(req.query.redirectTo)
-  return passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    session: false,
+const buildGoogleAuthUrl = (redirectTo) => {
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: `${process.env.SERVER_URL || 'http://localhost:5000'}/api/auth/google/callback`,
+    response_type: 'code',
+    scope: 'openid email profile',
+    access_type: 'offline',
+    prompt: 'select_account',
     state: redirectTo,
-  })(req, res, next)
+  })
+
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+}
+
+// Initiate Google OAuth
+router.get('/google', ensureGoogleOAuthConfigured, (req, res) => {
+  const redirectTo = normalizeRedirectTo(req.query.redirectTo)
+  res.redirect(buildGoogleAuthUrl(redirectTo))
 })
 
 // Google OAuth callback

@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, Calendar, User } from 'lucide-react'
 import axios from 'axios'
+import { getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 export default function BlogPreview() {
   const [posts, setPosts] = useState([])

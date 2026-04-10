@@ -7,6 +7,9 @@ export function cn(...inputs) {
 
 export function getApiBase() {
   const rawApiBase = import.meta.env.VITE_API_URL || '/api'
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && rawApiBase.includes('localhost')) {
+    return '/api'
+  }
   return rawApiBase.endsWith('/api') ? rawApiBase : `${rawApiBase.replace(/\/$/, '')}/api`
 }
 
