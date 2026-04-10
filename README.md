@@ -24,10 +24,10 @@ codecircle/
 │   │   │   ├── BlogPreview.jsx
 │   │   │   ├── HallOfFame.jsx
 │   │   │   ├── RecentUploads.jsx
-│   │   │   └── Seo.jsx
 │   │   │   ├── CommunitiesSection.jsx
 │   │   │   ├── JoinSection.jsx
-│   │   │   └── Footer.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   └── Seo.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── pages/
