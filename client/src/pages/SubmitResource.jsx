@@ -4,9 +4,9 @@ import axios from 'axios'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
-import { fileToDataUrl } from '../lib/utils'
+import { fileToDataUrl, getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 export default function SubmitResource() {
   const { user, loading, loginWithGoogle } = useAuth()
@@ -32,7 +32,11 @@ export default function SubmitResource() {
       setForm({ title: '', description: '', category: '', link: '', image: '' })
       setTimeout(() => navigate('/', { replace: true }), 1200)
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Could not submit resource.')
+      if (!err.response) {
+        setMessage('Could not reach server. Please check backend status.')
+      } else {
+        setMessage(err.response?.data?.error || 'Could not submit resource.')
+      }
     } finally {
       setSubmitting(false)
     }

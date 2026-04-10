@@ -5,6 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs))
 }
 
+export function getApiBase() {
+  const rawApiBase = import.meta.env.VITE_API_URL || '/api'
+  return rawApiBase.endsWith('/api') ? rawApiBase : `${rawApiBase.replace(/\/$/, '')}/api`
+}
+
 export function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()

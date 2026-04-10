@@ -5,9 +5,9 @@ import { motion } from 'framer-motion'
 import { Edit2, Plus, Save, Sparkles, UploadCloud, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
-import { fileToDataUrl } from '../lib/utils'
+import { fileToDataUrl, getApiBase } from '../lib/utils'
 
-const API = import.meta.env.VITE_API_URL || '/api'
+const API = getApiBase()
 
 const emptyForm = {
   title: '',
@@ -86,7 +86,11 @@ export default function Dashboard() {
       const refreshed = await axios.get(`${API}/resources/mine`)
       setResources(refreshed.data.resources || [])
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Could not save resource.')
+      if (!err.response) {
+        setMessage('Could not reach server. Please check backend status.')
+      } else {
+        setMessage(err.response?.data?.error || 'Could not save resource.')
+      }
     } finally {
       setSubmitting(false)
     }
