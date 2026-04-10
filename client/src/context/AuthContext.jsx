@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
+import { getApiBase } from '../lib/utils'
 
 const AuthContext = createContext(null)
 
-const rawApiBase = import.meta.env.VITE_API_URL || '/api'
-const API = rawApiBase.endsWith('/api') ? rawApiBase : `${rawApiBase.replace(/\/$/, '')}/api`
+const API = getApiBase()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
