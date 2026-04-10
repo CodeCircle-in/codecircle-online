@@ -2,6 +2,8 @@ const router = require('express').Router()
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const { auth } = require('../middleware/auth')
+const clientUrl = (process.env.CLIENT_URL || '').replace(/\/+$/, '')
+const serverUrl = (process.env.SERVER_URL || '').replace(/\/+$/, '')
 
 const isPlaceholder = (value = '') =>
   !value || value.startsWith('your_') || value.includes('replace_me')
@@ -34,7 +36,7 @@ const makeToken = (user) =>
 const buildGoogleAuthUrl = (redirectTo) => {
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: `${process.env.SERVER_URL || 'http://localhost:5000'}/api/auth/google/callback`,
+    redirect_uri: `${serverUrl}/api/auth/google/callback`,
     response_type: 'code',
     scope: 'openid email profile',
     access_type: 'offline',
@@ -55,7 +57,7 @@ router.get('/google', ensureGoogleOAuthConfigured, (req, res) => {
 router.get(
   '/google/callback',
   ensureGoogleOAuthConfigured,
-  passport.authenticate('google', { session: false, failureRedirect: `${process.env.CLIENT_URL}/?auth=failed` }),
+  passport.authenticate('google', { session: false, failureRedirect: `${clientUrl}/?auth=failed` }),
   (req, res) => {
     const token = makeToken(req.user)
     const user = {
@@ -67,7 +69,7 @@ router.get(
     }
     const encoded = encodeURIComponent(JSON.stringify(user))
     const redirectTo = normalizeRedirectTo(req.query.state)
-    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encoded}&redirectTo=${encodeURIComponent(redirectTo)}`)
+    res.redirect(`${clientUrl}/auth/callback?token=${token}&user=${encoded}&redirectTo=${encodeURIComponent(redirectTo)}`)
   }
 )
 

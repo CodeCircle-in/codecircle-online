@@ -8,10 +8,16 @@ require('./middleware/passport')
 
 const app = express()
 let dbConnected = false
+const normalizeOrigin = (value = '') => value.replace(/\/+$/, '')
+const clientOrigin = normalizeOrigin(process.env.CLIENT_URL)
+
+if (!clientOrigin) {
+  throw new Error('CLIENT_URL is required')
+}
 
 // CORS — in production lock this to your Vercel domain
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: clientOrigin,
   credentials: true,
 }))
 
