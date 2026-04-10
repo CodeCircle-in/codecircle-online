@@ -105,7 +105,7 @@ export default function Navbar() {
                 </div>
               ) : (
                 <button
-                  onClick={loginWithGoogle}
+                  onClick={() => loginWithGoogle('/submit-resource')}
                   className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-medium rounded-xl hover:bg-neutral-100 transition-colors"
                 >
                   <GoogleIcon />
@@ -166,7 +166,7 @@ export default function Navbar() {
                   <button onClick={logout} className="text-xs text-neutral-500 hover:text-white transition-colors">Sign out</button>
                 </div>
               ) : (
-                <button onClick={loginWithGoogle} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-neutral-100 transition-colors">
+                <button onClick={() => loginWithGoogle('/submit-resource')} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-neutral-100 transition-colors">
                   <GoogleIcon />
                   Sign in with Google
                 </button>

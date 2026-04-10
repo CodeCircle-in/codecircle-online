@@ -30,11 +30,11 @@ export default function JoinSection() {
                 <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border border-white/20" />
                 <span className="text-neutral-300">Welcome, {user.name.split(' ')[0]}</span>
                 <ArrowRight size={14} className="text-neutral-600" />
-                <a href="/submit" className="btn-primary">Post a Resource</a>
+                <a href="/submit-resource" className="btn-primary">Post a Resource</a>
               </div>
             ) : (
               <>
-                <button onClick={loginWithGoogle} className="btn-primary flex items-center gap-2">
+                <button onClick={() => loginWithGoogle('/submit-resource')} className="btn-primary flex items-center gap-2">
                   <GoogleIcon />
                   Sign in with Google
                 </button>

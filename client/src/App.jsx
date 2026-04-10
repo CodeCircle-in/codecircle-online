@@ -8,6 +8,7 @@ import BlogPost from './pages/BlogPost'
 import CategoryPage from './pages/CategoryPage'
 import Admin from './pages/Admin'
 import AuthCallback from './pages/AuthCallback'
+import SubmitResource from './pages/SubmitResource'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/submit-resource" element={<SubmitResource />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>

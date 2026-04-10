@@ -10,18 +10,19 @@ export default function AuthCallback() {
   useEffect(() => {
     const token = params.get('token')
     const userRaw = params.get('user')
+    const redirectTo = params.get('redirectTo') || '/submit-resource'
     if (token && userRaw) {
       try {
         const user = JSON.parse(decodeURIComponent(userRaw))
         setTokenAndUser(token, user)
-        navigate('/', { replace: true })
+        navigate(redirectTo, { replace: true })
       } catch {
-        navigate('/', { replace: true })
+        navigate(redirectTo, { replace: true })
       }
     } else {
-      navigate('/', { replace: true })
+      navigate(redirectTo, { replace: true })
     }
-  }, [])
+  }, [navigate, params, setTokenAndUser])
 
   return (
     <div className="min-h-screen flex items-center justify-center">

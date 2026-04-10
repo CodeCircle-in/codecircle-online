@@ -12,17 +12,10 @@ router.get('/users', auth, adminOnly, async (req, res) => {
   }
 })
 
-// PATCH /api/admin/users/:id/toggle-admin
-router.patch('/users/:id/toggle-admin', auth, adminOnly, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-    if (!user) return res.status(404).json({ error: 'User not found' })
-    user.isAdmin = !user.isAdmin
-    await user.save()
-    res.json(user)
-  } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
+// Admin role is fixed to the first OAuth user only.
+// Contributors can submit resources, but blog/admin permissions stay locked to one admin.
+router.patch('/users/:id/toggle-admin', auth, adminOnly, async (_req, res) => {
+  res.status(403).json({ error: 'Only one admin is allowed. Contributors cannot be promoted.' })
 })
 
 module.exports = router

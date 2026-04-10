@@ -83,11 +83,6 @@ export default function Admin() {
     setTimeout(() => setMsg(''), 3000)
   }
 
-  const toggleAdmin = async (uid) => {
-    await axios.patch(`${API}/admin/users/${uid}/toggle-admin`)
-    fetchData()
-  }
-
   if (loading) return null
 
   return (
@@ -279,14 +274,8 @@ export default function Admin() {
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className={`text-xs font-mono ${u.isAdmin ? 'text-blue-400' : 'text-neutral-600'}`}>
-                      {u.isAdmin ? 'admin' : 'member'}
+                      {u.isAdmin ? 'admin' : 'contributor'}
                     </span>
-                    <button
-                      onClick={() => toggleAdmin(u._id)}
-                      className="text-xs btn-ghost py-1 px-2"
-                    >
-                      {u.isAdmin ? 'Remove admin' : 'Make admin'}
-                    </button>
                   </div>
                 </div>
               ))}

@@ -22,8 +22,9 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const loginWithGoogle = () => {
-    window.location.href = `${API}/auth/google`
+  const loginWithGoogle = (redirectTo = '/submit-resource') => {
+    const target = encodeURIComponent(redirectTo)
+    window.location.href = `${API}/auth/google?redirectTo=${target}`
   }
 
   const logout = () => {

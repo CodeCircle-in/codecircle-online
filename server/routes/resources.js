@@ -15,8 +15,8 @@ router.get('/', async (req, res) => {
   }
 })
 
-// POST /api/resources — admin only
-router.post('/', auth, adminOnly, async (req, res) => {
+// POST /api/resources — authenticated users can submit resources
+router.post('/', auth, async (req, res) => {
   try {
     const resource = await Resource.create({ ...req.body, submittedBy: req.user._id })
     res.status(201).json(resource)

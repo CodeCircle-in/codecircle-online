@@ -6,6 +6,12 @@ const { auth } = require('../middleware/auth')
 const isPlaceholder = (value = '') =>
   !value || value.startsWith('your_') || value.includes('replace_me')
 
+const normalizeRedirectTo = (value) => {
+  if (typeof value !== 'string' || !value.startsWith('/')) return '/submit-resource'
+  if (value.startsWith('//')) return '/submit-resource'
+  return value
+}
+
 const ensureGoogleOAuthConfigured = (req, res, next) => {
   const missing = []
   if (isPlaceholder(process.env.GOOGLE_CLIENT_ID)) missing.push('GOOGLE_CLIENT_ID')
@@ -26,7 +32,14 @@ const makeToken = (user) =>
   jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' })
 
 // Initiate Google OAuth
-router.get('/google', ensureGoogleOAuthConfigured, passport.authenticate('google', { scope: ['profile', 'email'], session: false }))
+router.get('/google', ensureGoogleOAuthConfigured, (req, res, next) => {
+  const redirectTo = normalizeRedirectTo(req.query.redirectTo)
+  return passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+    state: redirectTo,
+  })(req, res, next)
+})
 
 // Google OAuth callback
 router.get(
@@ -43,7 +56,8 @@ router.get(
       isAdmin: req.user.isAdmin,
     }
     const encoded = encodeURIComponent(JSON.stringify(user))
-    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encoded}`)
+    const redirectTo = normalizeRedirectTo(req.query.state)
+    res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}&user=${encoded}&redirectTo=${encodeURIComponent(redirectTo)}`)
   }
 )
 
