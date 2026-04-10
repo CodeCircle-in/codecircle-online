@@ -1,0 +1,31 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
+import Home from './pages/Home'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
+import CategoryPage from './pages/CategoryPage'
+import Admin from './pages/Admin'
+import AuthCallback from './pages/AuthCallback'
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+          </Routes>
+        </main>
+        <Footer />
+      </BrowserRouter>
+    </AuthProvider>
+  )
+}
