@@ -18,9 +18,7 @@ import { getApiBase, SITE_BASE_URL } from '../lib/utils'
 import Seo from '../components/Seo'
 
 const API = getApiBase()
-
 const getCategory = (slug) => CATEGORIES.find(category => category.slug === slug)
-
 const getHostname = (url) => {
   try {
     return new URL(url).hostname
@@ -56,11 +54,11 @@ export default function ResourceDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-28 pb-24 px-6">
+      <div className="min-h-screen bg-canvas pt-32 pb-24 px-6">
         <div className="container-width max-w-4xl">
-          <div className="h-8 w-1/2 rounded bg-white/5 animate-pulse mb-4" />
-          <div className="h-4 w-2/3 rounded bg-white/5 animate-pulse mb-2" />
-          <div className="h-72 rounded-2xl bg-white/5 animate-pulse mt-8" />
+          <div className="h-8 w-1/3 rounded-wise-md bg-canvas-soft animate-pulse mb-4" />
+          <div className="h-4 w-2/3 rounded-wise-md bg-canvas-soft animate-pulse mb-3" />
+          <div className="h-80 rounded-wise-xl bg-canvas-soft animate-pulse mt-8" />
         </div>
       </div>
     )
@@ -68,10 +66,11 @@ export default function ResourceDetail() {
 
   if (error || !resource) {
     return (
-      <div className="min-h-screen pt-28 pb-24 px-6 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-neutral-500 mb-4">Resource not found.</p>
-          <Link to="/" className="btn-secondary text-sm">Back to home</Link>
+      <div className="min-h-screen bg-canvas pt-32 pb-24 px-6 flex items-center justify-center">
+        <div className="text-center max-w-md bg-canvas-soft p-10 rounded-wise-xl">
+          <p className="text-xl font-bold text-ink mb-2">Resource not found</p>
+          <p className="text-sm text-body mb-6">The requested resource could not be found or has been removed.</p>
+          <Link to="/" className="btn-primary text-sm">Return Home</Link>
         </div>
       </div>
     )
@@ -82,70 +81,97 @@ export default function ResourceDetail() {
     `Check out this resource on CodeCircle: ${resource.title}\n${window.location.href}`
   )
 
+  const learningSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LearningResource',
+    'name': resource.title,
+    'description': resource.description,
+    'url': `${SITE_BASE_URL}/resources/${resource._id}`,
+    'image': resource.image || `${SITE_BASE_URL}/og-image.svg`,
+    'author': {
+      '@type': 'Person',
+      'name': resource.submittedBy?.name || 'CodeCircle Contributor',
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'CodeCircle',
+      'url': SITE_BASE_URL,
+    },
+  }
+
   return (
-    <div className="min-h-screen pt-28 pb-24 px-6">
+    <div className="min-h-screen bg-canvas pt-32 pb-24 px-6">
       <Seo
-        title={resource.title}
-        description={resource.description}
+        title={`${resource.title} | CodeCircle — CodeCircle.online`}
+        description={resource.description || 'Verified student coding resource on CodeCircle (Code Circle / CodeCircle.online).'}
+        keywords={`${resource.title}, CodeCircle resource, Code Circle, CodeCircle.online, ${resource.category || 'tech'}`}
         path={`/resources/${resource._id}`}
-        image={resource.image || `${SITE_BASE_URL}/og-image.png`}
+        image={resource.image || `${SITE_BASE_URL}/og-image.svg`}
+        schema={learningSchema}
       />
 
       <div className="container-width max-w-5xl">
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <Link to="/" className="btn-ghost text-sm mb-8 inline-flex">
-            <ArrowLeft size={14} /> Resources
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <Link to="/" className="btn-secondary text-sm mb-8 inline-flex items-center gap-2">
+            <ArrowLeft size={14} /> Back to resources
           </Link>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-8 items-start">
-            <article className="glass rounded-3xl overflow-hidden">
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-8 items-start">
+            <article className="bg-canvas-soft rounded-wise-xl overflow-hidden border border-canvas-soft">
               {resource.image ? (
-                <img src={resource.image} alt={resource.title} className="w-full h-72 object-cover" />
+                <div className="w-full h-80 overflow-hidden bg-white/40">
+                  <img src={resource.image} alt={resource.title} className="w-full h-full object-cover" />
+                </div>
               ) : (
-                <div className="w-full h-72 bg-white/5" />
+                <div className="w-full h-48 bg-canvas border-b border-canvas-soft flex items-center justify-center text-mute">
+                  <Link2 size={36} className="opacity-40" />
+                </div>
               )}
 
-              <div className="p-6 md:p-8">
+              <div className="p-8 md:p-10">
                 {category && (
-                  <div className="mb-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-semibold" style={{ color: category.accent }}>
+                  <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-wise-pill text-xs font-semibold bg-white text-ink border border-canvas-soft">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: category.accent }} />
                     {category.title}
                   </div>
                 )}
 
-                <h1 className="text-3xl md:text-4xl font-light text-white leading-tight">
+                <h1 className="text-3xl md:text-5xl font-black text-ink leading-tight tracking-tight mb-4">
                   {resource.title}
                 </h1>
 
-                <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-neutral-600">
-                  <span className="flex items-center gap-1">
-                    <Calendar size={12} />
+                <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-mute pb-8 border-b border-[#d8dcd5]">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar size={13} />
                     {new Date(resource.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <User size={12} />
+                  <span>·</span>
+                  <span className="flex items-center gap-1.5">
+                    <User size={13} />
                     {resource.submittedBy?.name || 'Contributor'}
                   </span>
-                  <span className="flex items-center gap-1 min-w-0">
-                    <Link2 size={12} />
+                  <span>·</span>
+                  <span className="flex items-center gap-1.5 truncate max-w-[200px]">
+                    <Link2 size={13} />
                     <span className="truncate">{getHostname(resource.link)}</span>
                   </span>
                 </div>
 
-                <div className="mt-8 rounded-2xl border border-white/8 bg-white/4 p-6">
-                  <h2 className="text-sm font-medium text-white mb-3">About this resource</h2>
-                  <p className="text-sm leading-7 text-neutral-300 whitespace-pre-wrap">
+                <div className="mt-8 bg-canvas rounded-wise-lg p-6 border border-canvas-soft">
+                  <h2 className="text-sm font-bold text-ink uppercase tracking-wider mb-3">About this resource</h2>
+                  <p className="text-base leading-relaxed text-body whitespace-pre-wrap">
                     {resource.description}
                   </p>
                 </div>
               </div>
             </article>
 
-            <aside className="glass rounded-3xl p-6 space-y-5 xl:sticky xl:top-28">
+            {/* Sidebar actions */}
+            <aside className="bg-canvas-soft rounded-wise-xl p-8 space-y-6 border border-canvas-soft xl:sticky xl:top-28">
               <div>
-                <h2 className="text-white font-medium text-lg">Open source</h2>
-                <p className="text-sm text-neutral-500 mt-2">
-                  Continue to the original website when you are ready.
+                <h2 className="text-ink font-bold text-xl">Access Resource</h2>
+                <p className="text-sm text-body mt-1.5 leading-relaxed">
+                  Open the verified link to view documentation, repository, or tool directly.
                 </p>
               </div>
 
@@ -153,38 +179,39 @@ export default function ResourceDetail() {
                 href={resource.link}
                 target="_blank"
                 rel="noreferrer"
-                className="btn-primary w-full justify-center"
+                className="btn-primary w-full justify-center py-3.5 text-base"
               >
-                <ExternalLink size={14} /> Visit original link
+                <span>Visit original link</span>
+                <ExternalLink size={15} />
               </a>
 
-              <div className="space-y-3 border-t border-white/8 pt-5">
-                <div className="text-xs uppercase tracking-widest text-neutral-600">Share this page</div>
-                <button onClick={copyLink} className="btn-ghost w-full justify-center text-sm">
-                  {copied ? <><Check size={14} /> Link copied</> : <><Copy size={14} /> Copy page link</>}
+              <div className="space-y-2.5 pt-6 border-t border-[#d8dcd5]">
+                <div className="text-xs font-bold uppercase tracking-wider text-mute mb-2">Share resource</div>
+                <button onClick={copyLink} className="btn-secondary w-full justify-center text-xs py-2.5">
+                  {copied ? <><Check size={13} className="text-positive" /> Link copied</> : <><Copy size={13} /> Copy page link</>}
                 </button>
                 <a
                   href={`https://twitter.com/intent/tweet?text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn-ghost w-full justify-center text-sm"
+                  className="btn-secondary w-full justify-center text-xs py-2.5"
                 >
-                  <Share2 size={14} /> Share on X
+                  <Share2 size={13} /> Share on X / Twitter
                 </a>
                 <a
                   href={`https://wa.me/?text=${shareText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="btn-ghost w-full justify-center text-sm"
+                  className="btn-secondary w-full justify-center text-xs py-2.5"
                 >
-                  <MessageCircle size={14} /> Share on WhatsApp
+                  <MessageCircle size={13} /> Share on WhatsApp
                 </a>
               </div>
 
               {resource.submittedBy?.username && (
-                <div className="border-t border-white/8 pt-5">
-                  <Link to={`/u/${resource.submittedBy.username}`} className="btn-ghost w-full justify-center text-sm">
-                    <User size={14} /> View contributor profile
+                <div className="pt-6 border-t border-[#d8dcd5]">
+                  <Link to={`/u/${resource.submittedBy.username}`} className="btn-tertiary w-full justify-center text-xs py-2.5">
+                    <User size={13} /> Contributor Profile
                   </Link>
                 </div>
               )}

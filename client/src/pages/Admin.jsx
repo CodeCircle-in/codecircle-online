@@ -13,10 +13,10 @@ const API = getApiBase()
 const TABS = ['Posts', 'Resources', 'Users', 'Certificates']
 
 const TIER_META = {
-  codespark:  { label: 'Spark',     color: 'text-violet-400',  bg: 'bg-violet-500/10 border-violet-500/30',  icon: '⚡', iconUrl: '/assets/badge_spark.jpg' },
-  codeflame:  { label: 'Catalyst',  color: 'text-orange-400',  bg: 'bg-orange-500/10 border-orange-500/30',  icon: '🔥', iconUrl: '/assets/badge_catalyst.jpg' },
-  codeelite:  { label: 'Titan',     color: 'text-yellow-400',  bg: 'bg-yellow-500/10 border-yellow-500/30',  icon: '👑', iconUrl: '/assets/badge_titan.jpg' },
-  custom:     { label: 'Custom',    color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/30',      icon: '✨' },
+  codespark:  { label: 'Spark',     color: 'text-[#6b21a8]',  bg: 'bg-[#faf5ff] border-[#e9d5ff]',  pillBg: 'bg-[#f3e8ff]', icon: '⚡', iconUrl: '/assets/badge_spark.jpg' },
+  codeflame:  { label: 'Catalyst',  color: 'text-[#c2410c]',  bg: 'bg-[#fff7ed] border-[#fed7aa]',  pillBg: 'bg-[#ffedd5]', icon: '🔥', iconUrl: '/assets/badge_catalyst.jpg' },
+  codeelite:  { label: 'Titan',     color: 'text-[#a16207]',  bg: 'bg-[#fefce8] border-[#fef08a]',  pillBg: 'bg-[#fef9c3]', icon: '👑', iconUrl: '/assets/badge_titan.jpg' },
+  custom:     { label: 'Custom',    color: 'text-[#0369a1]',  bg: 'bg-[#f0f9ff] border-[#bae6fd]',  pillBg: 'bg-[#e0f2fe]', icon: '✨' },
 }
 
 export default function Admin() {
@@ -34,7 +34,7 @@ export default function Admin() {
   const [candidates, setCandidates]       = useState([])
   const [certificates, setCertificates]   = useState([])
   const [certLoading, setCertLoading]     = useState(false)
-  const [generating, setGenerating]       = useState(null) // userId being generated
+  const [generating, setGenerating]       = useState(null)
   const [rerenderingCertId, setRerenderingCertId] = useState(null)
   const [allUsers, setAllUsers]           = useState([])
 
@@ -61,9 +61,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!loading && (!user || !user.isAdmin)) navigate('/')
-  }, [user, loading])
-
-  useEffect(() => { fetchData() }, [tab])
+  }, [user, loading, navigate])
 
   const fetchData = useCallback(() => {
     if (tab === 'Posts') {
@@ -87,6 +85,8 @@ export default function Admin() {
     }
   }, [tab])
 
+  useEffect(() => { fetchData() }, [tab, fetchData])
+
   const deletePost = async (id) => {
     if (!confirm('Delete this post?')) return
     await axios.delete(`${API}/posts/${id}`)
@@ -105,10 +105,10 @@ export default function Admin() {
     try {
       if (form._id) await axios.put(`${API}/posts/${form._id}`, form)
       else          await axios.post(`${API}/posts`, form)
-      setMsg('Saved.')
+      setMsg('Post saved successfully.')
       setForm(null)
       fetchData()
-    } catch { setMsg('Error saving.') }
+    } catch { setMsg('Error saving post.') }
     setSubmitting(false)
     setTimeout(() => setMsg(''), 3000)
   }
@@ -119,10 +119,10 @@ export default function Admin() {
     try {
       if (form._id) await axios.put(`${API}/resources/${form._id}`, form)
       else          await axios.post(`${API}/resources`, form)
-      setMsg('Saved.')
+      setMsg('Resource saved successfully.')
       setForm(null)
       fetchData()
-    } catch { setMsg('Error saving.') }
+    } catch { setMsg('Error saving resource.') }
     setSubmitting(false)
     setTimeout(() => setMsg(''), 3000)
   }
@@ -138,7 +138,7 @@ export default function Admin() {
     setGenerating(userId)
     try {
       await axios.post(`${API}/admin/certificates/generate`, { userId, tier })
-      setMsg(`Certificate generated!`)
+      setMsg('Certificate generated!')
       setTimeout(() => setMsg(''), 3000)
       fetchData()
     } catch (err) {
@@ -150,7 +150,7 @@ export default function Admin() {
 
   const submitCustomCertificate = async (e) => {
     e.preventDefault()
-    if (!customForm.userId) return alert('Please select a user.')
+    if (!customForm.userId) return alert('Please select a recipient user.')
     setSubmitting(true)
     try {
       await axios.post(`${API}/admin/certificates/custom`, customForm)
@@ -210,56 +210,61 @@ export default function Admin() {
   if (loading) return null
 
   return (
-    <div className="min-h-screen pt-28 pb-24 px-6">
+    <div className="min-h-screen bg-canvas pt-32 pb-24 px-6">
       <Seo
-        title="Admin Dashboard"
+        title="Admin Management"
         description="Manage posts, resources, users, and certificates for CodeCircle."
         path="/admin"
         noindex
       />
-      <div className="container-width">
-        <div className="mb-10">
-          <p className="label-text mb-3">Admin</p>
-          <h1 className="heading-lg text-white">Dashboard</h1>
+      <div className="container-width space-y-8">
+        <div>
+          <p className="label-text mb-2">Management</p>
+          <h1 className="heading-xl">Admin Dashboard</h1>
+          <p className="body-muted mt-2 text-base">
+            Control platform content, issue verified contributor certificates, and review community activity.
+          </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 mb-8 glass rounded-xl p-1 w-fit flex-wrap">
+        {/* Tabs Bar */}
+        <div className="flex gap-2 bg-canvas-soft p-1.5 rounded-wise-lg border border-canvas-soft w-fit flex-wrap">
           {TABS.map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setForm(null) }}
-              className={`px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${tab === t ? 'bg-white/10 text-white' : 'text-neutral-500 hover:text-white'}`}
+              className={`px-4 py-2 rounded-wise-md text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                tab === t ? 'bg-canvas text-ink shadow-sm' : 'text-body hover:text-ink'
+              }`}
             >
-              {t === 'Posts'        && <BookOpen  size={13} />}
-              {t === 'Resources'    && <FileText  size={13} />}
-              {t === 'Users'        && <Users     size={13} />}
-              {t === 'Certificates' && <Award     size={13} />}
-              {t}
+              {t === 'Posts'        && <BookOpen  size={14} />}
+              {t === 'Resources'    && <FileText  size={14} />}
+              {t === 'Users'        && <Users     size={14} />}
+              {t === 'Certificates' && <Award     size={14} />}
+              <span>{t}</span>
             </button>
           ))}
         </div>
 
         {msg && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 glass border-green-500/30 rounded-lg px-4 py-3 text-sm text-green-400 flex items-center gap-2"
+            className="bg-primary-pale border border-primary text-positive-deep px-4 py-3 rounded-wise-md text-sm font-bold flex items-center gap-2"
           >
-            <Check size={14} /> {msg}
+            <Check size={16} /> {msg}
           </motion.div>
         )}
 
         {/* ── Posts tab ──────────────────────────────────────────────────── */}
         {tab === 'Posts' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-medium text-neutral-400">Blog Posts ({posts.length})</h2>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-ink">Blog Posts ({posts.length})</h2>
               <button
                 onClick={() => setForm({ title: '', excerpt: '', content: '', category: '', image: '', link: '' })}
                 className="btn-primary text-sm flex items-center gap-2"
               >
-                <Plus size={14} /> New Post
+                <Plus size={15} /> New Post
               </button>
             </div>
 
@@ -267,11 +272,11 @@ export default function Admin() {
               <motion.form
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                 onSubmit={submitPost}
-                className="glass rounded-2xl p-6 mb-6 flex flex-col gap-4"
+                className="bg-canvas-soft rounded-wise-xl p-8 border border-canvas-soft flex flex-col gap-4"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-white">{form._id ? 'Edit Post' : 'New Post'}</h3>
-                  <button type="button" onClick={() => setForm(null)} className="p-1 text-neutral-600 hover:text-white transition-colors"><X size={16} /></button>
+                  <h3 className="font-bold text-ink text-lg">{form._id ? 'Edit Post' : 'Create New Post'}</h3>
+                  <button type="button" onClick={() => setForm(null)} className="p-1 text-mute hover:text-ink transition-colors cursor-pointer"><X size={18} /></button>
                 </div>
                 <input required value={form.title}   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}   placeholder="Title"                  className="input-base" />
                 <input        value={form.excerpt}   onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} placeholder="Excerpt (short summary)" className="input-base" />
@@ -280,33 +285,33 @@ export default function Admin() {
                   {CATEGORIES.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}
                 </select>
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100" />
-                  {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
+                  <label className="text-xs font-bold uppercase tracking-wider text-mute">Image upload</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-wise-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-on-primary hover:file:bg-primary-active file:cursor-pointer" />
+                  {form.image && <p className="text-xs text-positive font-semibold">✓ Image selected</p>}
                 </div>
-                <input value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} placeholder="Resource link (optional)" className="input-base" />
-                <textarea required value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="Full content..." rows={8} className="input-base" />
-                <div className="flex gap-3">
+                <input value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} placeholder="External URL (optional)" className="input-base" />
+                <textarea required value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} placeholder="Full post markdown or html..." rows={8} className="input-base" />
+                <div className="flex gap-3 pt-2">
                   <button type="submit" disabled={submitting} className="btn-primary text-sm">{submitting ? 'Saving...' : 'Save Post'}</button>
-                  <button type="button" onClick={() => setForm(null)} className="btn-ghost text-sm">Cancel</button>
+                  <button type="button" onClick={() => setForm(null)} className="btn-secondary text-sm">Cancel</button>
                 </div>
               </motion.form>
             )}
 
-            <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
-              {posts.length === 0 && <div className="bg-surface-0 px-6 py-8 text-center text-sm text-neutral-600">No posts yet.</div>}
+            <div className="bg-canvas-soft rounded-wise-xl border border-canvas-soft overflow-hidden">
+              {posts.length === 0 && <div className="bg-canvas px-6 py-12 text-center text-sm text-body">No posts published yet.</div>}
               {posts.map(post => (
-                <div key={post._id} className="bg-surface-0 hover:bg-surface-1 transition-colors px-5 py-4 flex items-center gap-4">
+                <div key={post._id} className="bg-canvas hover:bg-canvas-soft/80 border-b border-canvas-soft transition-colors px-6 py-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white text-sm truncate">{post.title}</div>
-                    <div className="text-xs text-neutral-600 mt-0.5 flex items-center gap-3">
+                    <div className="font-bold text-ink text-base truncate">{post.title}</div>
+                    <div className="text-xs text-mute mt-1 flex items-center gap-3">
                       <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                      {post.category && <span className="label-text">{post.category}</span>}
+                      {post.category && <span className="font-semibold text-ink px-2 py-0.5 rounded-wise-pill bg-canvas-soft">{post.category}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button onClick={() => setForm(post)} className="p-1.5 text-neutral-600 hover:text-white rounded-lg hover:bg-white/5 transition-colors"><Edit2 size={13} /></button>
-                    <button onClick={() => deletePost(post._id)} className="p-1.5 text-neutral-600 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors"><Trash2 size={13} /></button>
+                    <button onClick={() => setForm(post)} className="btn-secondary text-xs py-1.5 px-3"><Edit2 size={13} /> Edit</button>
+                    <button onClick={() => deletePost(post._id)} className="btn-secondary text-xs py-1.5 px-3 text-negative hover:bg-[#fee2e2]"><Trash2 size={13} /> Delete</button>
                   </div>
                 </div>
               ))}
@@ -316,11 +321,11 @@ export default function Admin() {
 
         {/* ── Resources tab ──────────────────────────────────────────────── */}
         {tab === 'Resources' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-medium text-neutral-400">Resources ({resources.length})</h2>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-ink">Resources ({resources.length})</h2>
               <button onClick={() => setForm({ title: '', description: '', category: '', image: '', link: '' })} className="btn-primary text-sm flex items-center gap-2">
-                <Plus size={14} /> New Resource
+                <Plus size={15} /> New Resource
               </button>
             </div>
 
@@ -328,11 +333,11 @@ export default function Admin() {
               <motion.form
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                 onSubmit={submitResource}
-                className="glass rounded-2xl p-6 mb-6 flex flex-col gap-4"
+                className="bg-canvas-soft rounded-wise-xl p-8 border border-canvas-soft flex flex-col gap-4"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-white">{form._id ? 'Edit Resource' : 'New Resource'}</h3>
-                  <button type="button" onClick={() => setForm(null)} className="p-1 text-neutral-600 hover:text-white transition-colors"><X size={16} /></button>
+                  <h3 className="font-bold text-ink text-lg">{form._id ? 'Edit Resource' : 'Add New Resource'}</h3>
+                  <button type="button" onClick={() => setForm(null)} className="p-1 text-mute hover:text-ink transition-colors cursor-pointer"><X size={18} /></button>
                 </div>
                 <input    required value={form.title}       onChange={e => setForm(f => ({ ...f, title: e.target.value }))}       placeholder="Title"        className="input-base" />
                 <textarea required value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" rows={3} className="input-base" />
@@ -342,28 +347,28 @@ export default function Admin() {
                 </select>
                 <input    required value={form.link}        onChange={e => setForm(f => ({ ...f, link: e.target.value }))}        placeholder="Resource URL" className="input-base" />
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100" />
-                  {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
+                  <label className="text-xs font-bold uppercase tracking-wider text-mute">Image upload</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-wise-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-on-primary hover:file:bg-primary-active file:cursor-pointer" />
+                  {form.image && <p className="text-xs text-positive font-semibold">✓ Image selected</p>}
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-2">
                   <button type="submit" disabled={submitting} className="btn-primary text-sm">{submitting ? 'Saving...' : 'Save Resource'}</button>
-                  <button type="button" onClick={() => setForm(null)} className="btn-ghost text-sm">Cancel</button>
+                  <button type="button" onClick={() => setForm(null)} className="btn-secondary text-sm">Cancel</button>
                 </div>
               </motion.form>
             )}
 
-            <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
-              {resources.length === 0 && <div className="bg-surface-0 px-6 py-8 text-center text-sm text-neutral-600">No resources yet.</div>}
+            <div className="bg-canvas-soft rounded-wise-xl border border-canvas-soft overflow-hidden">
+              {resources.length === 0 && <div className="bg-canvas px-6 py-12 text-center text-sm text-body">No resources uploaded yet.</div>}
               {resources.map(res => (
-                <div key={res._id} className="bg-surface-0 hover:bg-surface-1 transition-colors px-5 py-4 flex items-center gap-4">
+                <div key={res._id} className="bg-canvas hover:bg-canvas-soft/80 border-b border-canvas-soft transition-colors px-6 py-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white text-sm truncate">{res.title}</div>
-                    <div className="text-xs text-neutral-600 mt-0.5 font-mono truncate">{res.link}</div>
+                    <div className="font-bold text-ink text-base truncate">{res.title}</div>
+                    <div className="text-xs text-mute mt-1 font-mono truncate">{res.link}</div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button onClick={() => setForm(res)} className="p-1.5 text-neutral-600 hover:text-white rounded-lg hover:bg-white/5 transition-colors"><Edit2 size={13} /></button>
-                    <button onClick={() => deleteResource(res._id)} className="p-1.5 text-neutral-600 hover:text-red-400 rounded-lg hover:bg-white/5 transition-colors"><Trash2 size={13} /></button>
+                    <button onClick={() => setForm(res)} className="btn-secondary text-xs py-1.5 px-3"><Edit2 size={13} /> Edit</button>
+                    <button onClick={() => deleteResource(res._id)} className="btn-secondary text-xs py-1.5 px-3 text-negative hover:bg-[#fee2e2]"><Trash2 size={13} /> Delete</button>
                   </div>
                 </div>
               ))}
@@ -373,19 +378,21 @@ export default function Admin() {
 
         {/* ── Users tab ──────────────────────────────────────────────────── */}
         {tab === 'Users' && (
-          <div>
-            <h2 className="text-sm font-medium text-neutral-400 mb-6">Users ({users.length})</h2>
-            <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
-              {users.length === 0 && <div className="bg-surface-0 px-6 py-8 text-center text-sm text-neutral-600">No users yet.</div>}
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-ink">Registered Users ({users.length})</h2>
+            <div className="bg-canvas-soft rounded-wise-xl border border-canvas-soft overflow-hidden">
+              {users.length === 0 && <div className="bg-canvas px-6 py-12 text-center text-sm text-body">No registered users yet.</div>}
               {users.map(u => (
-                <div key={u._id} className="bg-surface-0 hover:bg-surface-1 transition-colors px-5 py-4 flex items-center gap-4">
-                  <img src={u.avatar} alt={u.name} className="w-8 h-8 rounded-full border border-white/10 shrink-0" />
+                <div key={u._id} className="bg-canvas hover:bg-canvas-soft/80 border-b border-canvas-soft transition-colors px-6 py-4 flex items-center gap-4">
+                  <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full border border-canvas-soft shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white text-sm">{u.name}</div>
-                    <div className="text-xs text-neutral-600">{u.email}</div>
+                    <div className="font-bold text-ink text-base">{u.name}</div>
+                    <div className="text-xs text-mute mt-0.5">{u.email}</div>
                   </div>
-                  <span className={`text-xs font-mono ${u.isAdmin ? 'text-blue-400' : 'text-neutral-600'}`}>
-                    {u.isAdmin ? 'admin' : 'contributor'}
+                  <span className={`text-xs font-bold px-3 py-1 rounded-wise-pill ${
+                    u.isAdmin ? 'bg-primary text-on-primary' : 'bg-canvas-soft text-body'
+                  }`}>
+                    {u.isAdmin ? 'Admin' : 'Contributor'}
                   </span>
                 </div>
               ))}
@@ -396,12 +403,12 @@ export default function Admin() {
         {/* ── Certificates tab ───────────────────────────────────────────── */}
         {tab === 'Certificates' && (
           <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-white font-medium text-lg">Certificate Manager</h2>
-                <p className="text-sm text-neutral-500 mt-1">Generate and edit achievements for contributors.</p>
+                <h2 className="text-xl font-bold text-ink">Certificate Issuer</h2>
+                <p className="text-sm text-body mt-1">Issue official certificates for monthly contributors or custom recognition.</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={() => {
                     setCustomForm({
@@ -410,36 +417,36 @@ export default function Admin() {
                       platforms: [],
                       contribution: '',
                       themeColor: '#5B8CFF',
-                      customMessage: 'Thank you for your awesome multi-platform contributions!',
+                      customMessage: 'Thank you for your active multi-platform contributions!',
                     })
                     setShowCustomModal(true)
                   }}
                   className="btn-primary text-sm flex items-center gap-2"
                 >
-                  <Plus size={14} /> Custom Certificate
+                  <Plus size={15} /> Custom Certificate
                 </button>
-                <button onClick={fetchData} className="btn-ghost text-sm flex items-center gap-2">
-                  <RefreshCw size={13} /> Refresh
+                <button onClick={fetchData} className="btn-secondary text-sm flex items-center gap-2">
+                  <RefreshCw size={14} /> Refresh
                 </button>
               </div>
             </div>
 
-            {/* Badge tier legend */}
-            <div className="grid grid-cols-4 gap-3 flex-wrap">
+            {/* Tier legend */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {Object.entries(TIER_META).map(([key, meta]) => (
-                <div key={key} className={`rounded-xl border px-4 py-3 flex items-center gap-3 ${meta.bg}`}>
+                <div key={key} className={`rounded-wise-xl border p-4 flex items-center gap-3 ${meta.bg}`}>
                   {meta.iconUrl ? (
-                    <img src={meta.iconUrl} className="w-6 h-6 object-contain" alt={meta.label} />
+                    <img src={meta.iconUrl} className="w-8 h-8 object-contain rounded-full" alt={meta.label} />
                   ) : (
-                    <span className="text-xl">{meta.icon}</span>
+                    <span className="text-2xl">{meta.icon}</span>
                   )}
                   <div>
-                    <div className={`text-sm font-semibold ${meta.color}`}>{meta.label}</div>
-                    <div className="text-xs text-neutral-500">
-                      {key === 'codespark' && '1+ resources/month'}
-                      {key === 'codeflame' && '5+ resources/month'}
-                      {key === 'codeelite' && '10+ resources/month'}
-                      {key === 'custom' && 'External platform contributors'}
+                    <div className={`text-sm font-bold ${meta.color}`}>{meta.label}</div>
+                    <div className="text-xs text-mute font-medium mt-0.5">
+                      {key === 'codespark' && '1+ uploads/month'}
+                      {key === 'codeflame' && '5+ uploads/month'}
+                      {key === 'codeelite' && '10+ uploads/month'}
+                      {key === 'custom' && 'Custom recognition'}
                     </div>
                   </div>
                 </div>
@@ -448,42 +455,40 @@ export default function Admin() {
 
             {/* Candidates list */}
             <div>
-              <h3 className="text-sm font-medium text-neutral-400 mb-4">
-                This Month's Contributors {candidates.length > 0 && `(${candidates.length})`}
+              <h3 className="text-base font-bold text-ink mb-4">
+                Eligible Monthly Candidates {candidates.length > 0 && `(${candidates.length})`}
               </h3>
 
               {certLoading ? (
                 <div className="space-y-3">
-                  {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-white/5 animate-pulse" />)}
+                  {[...Array(3)].map((_, i) => <div key={i} className="h-20 rounded-wise-lg bg-canvas-soft animate-pulse" />)}
                 </div>
               ) : candidates.length === 0 ? (
-                <div className="glass rounded-xl px-6 py-8 text-center text-sm text-neutral-500">
-                  No contributors this month yet.
+                <div className="bg-canvas-soft rounded-wise-xl p-8 text-center text-sm text-body">
+                  No candidate contributors this month yet.
                 </div>
               ) : (
-                <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
+                <div className="bg-canvas-soft rounded-wise-xl border border-canvas-soft overflow-hidden">
                   {candidates.map(c => {
                     const meta = c.tier ? TIER_META[c.tier.tier] : null
                     const isGen = generating === String(c.userId)
                     return (
-                      <div key={c.userId} className="bg-surface-0 hover:bg-surface-1 transition-colors px-5 py-4 flex items-center gap-4">
-                        <img src={c.avatar} alt={c.name} className="w-9 h-9 rounded-full border border-white/10 shrink-0" />
+                      <div key={c.userId} className="bg-canvas hover:bg-canvas-soft/80 border-b border-canvas-soft px-6 py-4 flex items-center gap-4">
+                        <img src={c.avatar} alt={c.name} className="w-10 h-10 rounded-full border border-canvas-soft shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-white text-sm">{c.name}</div>
-                          <div className="text-xs text-neutral-600 mt-0.5">{c.email}</div>
+                          <div className="font-bold text-ink text-base">{c.name}</div>
+                          <div className="text-xs text-mute mt-0.5">{c.email}</div>
                         </div>
 
-                        {/* Resource count */}
                         <div className="text-center shrink-0">
-                          <div className="text-lg font-bold text-white">{c.count}</div>
-                          <div className="text-xs text-neutral-600">resources</div>
+                          <div className="text-xl font-black text-ink">{c.count}</div>
+                          <div className="text-xs text-mute font-medium">resources</div>
                         </div>
 
-                        {/* Badge tier */}
                         {meta && (
-                          <div className={`text-xs px-2 py-1 rounded-lg border shrink-0 ${meta.bg} ${meta.color} flex items-center gap-1`}>
+                          <div className={`text-xs px-3 py-1 rounded-wise-pill border shrink-0 ${meta.bg} ${meta.color} font-bold flex items-center gap-1`}>
                             {meta.iconUrl ? (
-                              <img src={meta.iconUrl} className="w-3.5 h-3.5 object-contain" alt={meta.label} />
+                              <img src={meta.iconUrl} className="w-3.5 h-3.5 object-contain rounded-full" alt={meta.label} />
                             ) : (
                               <span>{meta.icon}</span>
                             )}
@@ -491,21 +496,20 @@ export default function Admin() {
                           </div>
                         )}
 
-                        {/* Action */}
                         <div className="shrink-0">
                           {!c.tier ? (
-                            <span className="text-xs text-neutral-600">Below threshold</span>
+                            <span className="text-xs text-mute font-medium">Below threshold</span>
                           ) : c.hasCert ? (
-                            <span className="text-xs text-green-500 flex items-center gap-1"><Check size={12} /> Issued</span>
+                            <span className="text-xs text-positive font-bold flex items-center gap-1"><Check size={14} /> Issued</span>
                           ) : (
                             <button
                               onClick={() => generateCertificate(String(c.userId), c.tier.tier)}
                               disabled={isGen}
-                              className="btn-primary text-xs flex items-center gap-1.5"
+                              className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5"
                             >
                               {isGen
-                                ? <><RefreshCw size={11} className="animate-spin" /> Generating...</>
-                                : <><Award size={11} /> Generate</>
+                                ? <><RefreshCw size={12} className="animate-spin" /> Generating...</>
+                                : <><Award size={12} /> Issue Certificate</>
                               }
                             </button>
                           )}
@@ -519,40 +523,42 @@ export default function Admin() {
 
             {/* Issued certificates history */}
             <div>
-              <h3 className="text-sm font-medium text-neutral-400 mb-4">
-                Issued Certificates {certificates.length > 0 && `(${certificates.length})`}
+              <h3 className="text-base font-bold text-ink mb-4">
+                Issued Certificates History {certificates.length > 0 && `(${certificates.length})`}
               </h3>
               {certificates.length === 0 ? (
-                <div className="glass rounded-xl px-6 py-6 text-center text-sm text-neutral-500">No certificates issued yet.</div>
+                <div className="bg-canvas-soft rounded-wise-xl p-8 text-center text-sm text-body">
+                  No certificates issued yet.
+                </div>
               ) : (
-                <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
+                <div className="bg-canvas-soft rounded-wise-xl border border-canvas-soft overflow-hidden">
                   {certificates.map(cert => {
                     const meta = TIER_META[cert.tier] || TIER_META.custom
                     return (
-                      <div key={cert._id} className="bg-surface-0 hover:bg-surface-1 transition-colors px-5 py-4 flex items-center gap-4 flex-wrap md:flex-nowrap">
-                        {cert.userId?.avatar && <img src={cert.userId.avatar} alt={cert.userId.name} className="w-8 h-8 rounded-full border border-white/10 shrink-0" />}
+                      <div key={cert._id} className="bg-canvas hover:bg-canvas-soft/80 border-b border-canvas-soft px-6 py-4 flex items-center gap-4 flex-wrap md:flex-nowrap">
+                        {cert.userId?.avatar && <img src={cert.userId.avatar} alt={cert.userId.name} className="w-10 h-10 rounded-full border border-canvas-soft shrink-0" />}
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-white text-sm">{cert.userId?.name || 'Unknown Recipient'}</div>
-                          <div className="text-xs text-neutral-600">{monthLabel(cert.month, cert.year)}</div>
+                          <div className="font-bold text-ink text-base">{cert.userId?.name || 'Unknown Recipient'}</div>
+                          <div className="text-xs text-mute mt-0.5">{monthLabel(cert.month, cert.year)}</div>
                         </div>
-                        <div className={`text-xs px-2 py-1 rounded-lg border flex items-center gap-1 shrink-0 ${meta?.bg} ${meta?.color}`}>
+                        <div className={`text-xs px-3 py-1 rounded-wise-pill border flex items-center gap-1 shrink-0 ${meta?.bg} ${meta?.color} font-bold`}>
                           {meta?.iconUrl ? (
-                            <img src={meta.iconUrl} className="w-3.5 h-3.5 object-contain" alt={cert.badgeName} />
+                            <img src={meta.iconUrl} className="w-3.5 h-3.5 object-contain rounded-full" alt={cert.badgeName} />
                           ) : (
                             <span>{meta?.icon}</span>
                           )}
                           <span>{cert.badgeName}</span>
                         </div>
-                        <div className="text-xs text-neutral-600 shrink-0">
-                          {cert.downloaded ? <span className="text-green-500 flex items-center gap-1"><Download size={11} /> Downloaded</span> : 'Not yet downloaded'}
+                        <div className="text-xs font-medium text-mute shrink-0">
+                          {cert.downloaded ? <span className="text-positive font-bold flex items-center gap-1"><Download size={12} /> Downloaded</span> : 'Pending download'}
                         </div>
                         <button
                           onClick={() => rerenderCertificate(cert._id)}
                           disabled={rerenderingCertId === cert._id}
-                          className="btn-ghost text-xs flex items-center gap-1"
+                          className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1"
                         >
                           <RefreshCw size={12} className={rerenderingCertId === cert._id ? 'animate-spin' : ''} />
-                          {rerenderingCertId === cert._id ? 'Refreshing...' : 'Refresh Design'}
+                          <span>{rerenderingCertId === cert._id ? 'Re-rendering...' : 'Refresh Design'}</span>
                         </button>
                         <button
                           onClick={() => {
@@ -564,7 +570,7 @@ export default function Admin() {
                             })
                             setShowEditModal(true)
                           }}
-                          className="btn-ghost text-xs flex items-center gap-1"
+                          className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1"
                         >
                           <Edit2 size={12} /> Edit
                         </button>
@@ -580,17 +586,17 @@ export default function Admin() {
 
       {/* ── Custom Certificate Modal ────────────────────────────────────── */}
       {showCustomModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass rounded-2xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
+            className="bg-canvas rounded-wise-xl p-8 w-full max-w-lg relative max-h-[90vh] overflow-y-auto border border-canvas-soft shadow-2xl"
           >
-            <button onClick={() => setShowCustomModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white"><X size={18} /></button>
-            <h2 className="text-lg font-bold text-white mb-4">Generate Custom Certificate</h2>
+            <button onClick={() => setShowCustomModal(false)} className="absolute top-5 right-5 text-mute hover:text-ink cursor-pointer"><X size={18} /></button>
+            <h2 className="text-xl font-bold text-ink mb-5">Generate Custom Certificate</h2>
             <form onSubmit={submitCustomCertificate} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Recipient User</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Recipient User</label>
                 <select
                   required
                   value={customForm.userId}
@@ -603,18 +609,18 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Badge/Award Title</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Award Title</label>
                 <input
                   required
                   value={customForm.badgeName}
                   onChange={e => setCustomForm(f => ({ ...f, badgeName: e.target.value }))}
-                  placeholder="e.g. Community Champ, Dev Advocate"
+                  placeholder="e.g. Community Champ, Advocate"
                   className="input-base"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Contribution Platforms</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Contribution Platforms</label>
                 <div className="flex flex-wrap gap-2">
                   {['Website', 'WhatsApp', 'Discord', 'LinkedIn'].map(p => {
                     const isSelected = customForm.platforms.includes(p)
@@ -623,13 +629,15 @@ export default function Admin() {
                         type="button"
                         key={p}
                         onClick={() => togglePlatform(p)}
-                        className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-colors ${isSelected ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-neutral-400'}`}
+                        className={`px-3 py-1.5 rounded-wise-pill border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                          isSelected ? 'bg-primary text-on-primary border-primary' : 'bg-canvas-soft border-canvas-soft text-body hover:text-ink'
+                        }`}
                       >
                         {p === 'Website' && <Globe size={11} />}
                         {p === 'WhatsApp' && <MessageSquare size={11} />}
                         {p === 'Discord' && <MessageSquare size={11} />}
                         {p === 'LinkedIn' && <Linkedin size={11} />}
-                        {p}
+                        <span>{p}</span>
                       </button>
                     )
                   })}
@@ -637,11 +645,11 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Contribution Details</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Contribution Details</label>
                 <textarea
                   value={customForm.contribution}
                   onChange={e => setCustomForm(f => ({ ...f, contribution: e.target.value }))}
-                  placeholder="Describe what they contributed..."
+                  placeholder="Describe the contribution..."
                   rows={3}
                   className="input-base"
                 />
@@ -649,13 +657,13 @@ export default function Admin() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-neutral-400">Theme Color (Hex)</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-mute">Theme Color</label>
                   <div className="flex gap-2">
                     <input
                       type="color"
                       value={customForm.themeColor}
                       onChange={e => setCustomForm(f => ({ ...f, themeColor: e.target.value }))}
-                      className="w-10 h-10 rounded border border-white/10 bg-transparent cursor-pointer"
+                      className="w-10 h-10 rounded border border-canvas-soft bg-transparent cursor-pointer"
                     />
                     <input
                       required
@@ -667,7 +675,7 @@ export default function Admin() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs text-neutral-400">Congratulations Msg</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-mute">Custom Message</label>
                   <input
                     value={customForm.customMessage}
                     onChange={e => setCustomForm(f => ({ ...f, customMessage: e.target.value }))}
@@ -677,8 +685,8 @@ export default function Admin() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-2">
-                <button type="button" onClick={() => setShowCustomModal(false)} className="btn-ghost text-sm">Cancel</button>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setShowCustomModal(false)} className="btn-secondary text-sm">Cancel</button>
                 <button type="submit" disabled={submitting} className="btn-primary text-sm">
                   {submitting ? 'Generating...' : 'Issue Certificate'}
                 </button>
@@ -690,17 +698,17 @@ export default function Admin() {
 
       {/* ── Edit Certificate Modal ──────────────────────────────────────── */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass rounded-2xl p-6 w-full max-w-md relative"
+            className="bg-canvas rounded-wise-xl p-8 w-full max-w-md relative border border-canvas-soft shadow-2xl"
           >
-            <button onClick={() => setShowEditModal(false)} className="absolute top-4 right-4 text-neutral-500 hover:text-white"><X size={18} /></button>
-            <h2 className="text-lg font-bold text-white mb-4">Edit Certificate Appearance</h2>
+            <button onClick={() => setShowEditModal(false)} className="absolute top-5 right-5 text-mute hover:text-ink cursor-pointer"><X size={18} /></button>
+            <h2 className="text-xl font-bold text-ink mb-5">Edit Certificate Appearance</h2>
             <form onSubmit={submitEditCertificate} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Badge Title</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Badge Title</label>
                 <input
                   required
                   value={editForm.badgeName}
@@ -710,13 +718,13 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Theme Color</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Theme Color</label>
                 <div className="flex gap-2">
                   <input
                     type="color"
                     value={editForm.themeColor}
                     onChange={e => setEditForm(f => ({ ...f, themeColor: e.target.value }))}
-                    className="w-10 h-10 rounded border border-white/10 bg-transparent cursor-pointer"
+                    className="w-10 h-10 rounded border border-canvas-soft bg-transparent cursor-pointer"
                   />
                   <input
                     required
@@ -728,7 +736,7 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-400">Custom Message</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-mute">Custom Message</label>
                 <input
                   value={editForm.customMessage}
                   onChange={e => setEditForm(f => ({ ...f, customMessage: e.target.value }))}
@@ -736,8 +744,8 @@ export default function Admin() {
                 />
               </div>
 
-              <div className="flex justify-end gap-3 mt-2">
-                <button type="button" onClick={() => setShowEditModal(false)} className="btn-ghost text-sm">Cancel</button>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setShowEditModal(false)} className="btn-secondary text-sm">Cancel</button>
                 <button type="submit" disabled={submitting} className="btn-primary text-sm">
                   {submitting ? 'Updating...' : 'Save & Render'}
                 </button>

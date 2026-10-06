@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth/callback
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth/callback
 
 Sitemap: https://www.codecircle.online/sitemap.xml
+Host: https://www.codecircle.online
