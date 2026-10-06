@@ -26,14 +26,16 @@ export default function AuthCallback() {
   }, [navigate, params, setTokenAndUser])
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen bg-canvas flex flex-col items-center justify-center px-6">
       <Seo
         title="Signing In"
         description="Completing your sign in to CodeCircle."
         path="/auth/callback"
         noindex
       />
-      <div className="text-neutral-500 text-sm">Signing you in...</div>
+      <div className="w-10 h-10 rounded-full border-3 border-canvas-soft border-t-primary animate-spin mb-4" />
+      <div className="text-ink font-bold text-base">Signing you into CodeCircle...</div>
+      <div className="text-mute text-xs mt-1">Please wait a moment.</div>
     </div>
   )
 }

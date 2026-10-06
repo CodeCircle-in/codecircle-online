@@ -22,62 +22,75 @@ export default function BlogPreview() {
   if (!loading && posts.length === 0) return null
 
   return (
-    <section className="section-padding border-t border-white/8">
+    <section className="section-padding bg-canvas border-t border-canvas-soft">
       <div className="container-width">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           className="flex items-end justify-between mb-12"
         >
           <div>
-            <p className="label-text mb-4">Blog</p>
-            <h2 className="heading-lg text-white">Latest Updates</h2>
+            <p className="label-text mb-3">Blog</p>
+            <h2 className="heading-lg">Latest Updates & Guides</h2>
+            <p className="body-muted mt-2 max-w-lg">
+              Tutorials, opportunity highlights, and community updates from our writers.
+            </p>
           </div>
-          <Link to="/blog" className="btn-ghost text-sm hidden sm:flex">
+          <Link to="/blog" className="btn-secondary text-sm hidden sm:inline-flex items-center gap-2">
             All posts <ArrowRight size={14} />
           </Link>
         </motion.div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="glass rounded-xl h-48 animate-pulse" />
+              <div key={i} className="bg-canvas-soft rounded-wise-xl h-64 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {posts.map((post, i) => (
               <motion.div
                 key={post._id}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
               >
-                <Link to={`/blog/${post._id}`} className="group flex flex-col h-full glass rounded-xl overflow-hidden hover:border-white/20 transition-all">
+                <Link
+                  to={`/blog/${post._id}`}
+                  className="group flex flex-col h-full bg-canvas-soft rounded-wise-xl overflow-hidden hover:bg-[#dfe3dc] transition-all duration-200 border border-transparent hover:border-ink/10"
+                >
                   {post.image && (
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-36 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    />
+                    <div className="w-full h-44 overflow-hidden bg-white/40">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                      />
+                    </div>
                   )}
-                  <div className="p-5 flex flex-col flex-1">
+                  <div className="p-6 flex flex-col flex-1">
                     {post.category && (
-                      <span className="label-text mb-2">{post.category}</span>
+                      <span className="inline-flex self-start px-3 py-1 rounded-wise-pill text-xs font-semibold mb-3 bg-white text-ink border border-canvas-soft">
+                        {post.category}
+                      </span>
                     )}
-                    <h3 className="font-medium text-white text-base leading-snug mb-2 group-hover:text-neutral-200 transition-colors line-clamp-2">
+                    <h3 className="font-semibold text-ink text-lg leading-snug mb-2 group-hover:text-ink transition-colors line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-sm text-neutral-500 line-clamp-2 flex-1">{post.excerpt}</p>
-                    <div className="mt-4 flex items-center gap-4 text-xs text-neutral-700">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={10} />
+                    <p className="text-sm text-body line-clamp-2 leading-relaxed flex-1 mb-4">
+                      {post.excerpt}
+                    </p>
+                    <div className="pt-4 border-t border-[#d8dcd5] flex items-center justify-between text-xs text-mute mt-auto">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={12} />
                         {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <User size={10} />
+                      <span className="flex items-center gap-1.5">
+                        <User size={12} />
                         {post.author?.name || 'Admin'}
                       </span>
                     </div>
@@ -88,8 +101,8 @@ export default function BlogPreview() {
           </div>
         )}
 
-        <div className="mt-6 sm:hidden">
-          <Link to="/blog" className="btn-ghost text-sm">
+        <div className="mt-8 sm:hidden text-center">
+          <Link to="/blog" className="btn-secondary text-sm w-full py-3 justify-center">
             All posts <ArrowRight size={14} />
           </Link>
         </div>

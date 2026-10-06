@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { SITE_BASE_URL } from '../lib/utils'
 
-const DEFAULT_TITLE = 'CodeCircle.online | Student Tech Community'
-const DEFAULT_DESCRIPTION = 'CodeCircle is a student tech community for students, by students. Explore curated resources, blog posts, open source contributors, internships, AI, Linux, cybersecurity, and more.'
+const DEFAULT_TITLE = 'CodeCircle | Student Tech Community & Developer Resources | CodeCircle.online'
+const DEFAULT_DESCRIPTION = 'CodeCircle (Code Circle / CodeCircle.online) is a student tech community for students, by students. Explore curated resources, tutorials, internship alerts, AI/ML, Linux, cybersecurity, and open source opportunities.'
 const SITE_NAME = 'CodeCircle'
+const BRAND_KEYWORDS = 'CodeCircle, Code Circle, code circle, codecircle, CodeCircle.online, codecircle.online, Code Circle Online, student tech community, student developer community, student coding resources'
 
 function upsertMeta(selector, attributes) {
   let element = document.head.querySelector(selector)
@@ -31,23 +32,42 @@ function upsertLink(selector, attributes) {
   })
 }
 
+function upsertScript(id, json) {
+  let element = document.getElementById(id)
+  if (!element) {
+    element = document.createElement('script')
+    element.id = id
+    element.type = 'application/ld+json'
+    document.head.appendChild(element)
+  }
+  element.textContent = JSON.stringify(json)
+}
+
 export default function Seo({
   title,
   description = DEFAULT_DESCRIPTION,
+  keywords = '',
   path = '/',
-  image = `${SITE_BASE_URL}/og-image.png`,
+  image = `${SITE_BASE_URL}/og-image.svg`,
   type = 'website',
   noindex = false,
+  schema = null,
 }) {
   useEffect(() => {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`
     const canonical = `${SITE_BASE_URL}${normalizedPath}`
-    const pageTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE
-    const robots = noindex ? 'noindex, nofollow' : 'index, follow'
+    const pageTitle = title
+      ? (title.toLowerCase().includes('codecircle') || title.toLowerCase().includes('code circle')
+          ? title
+          : `${title} | CodeCircle — CodeCircle.online`)
+      : DEFAULT_TITLE
+    const robots = noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+    const combinedKeywords = keywords ? `${keywords}, ${BRAND_KEYWORDS}` : BRAND_KEYWORDS
 
     document.title = pageTitle
 
     upsertMeta('meta[name="description"]', { name: 'description', content: description })
+    upsertMeta('meta[name="keywords"]', { name: 'keywords', content: combinedKeywords })
     upsertMeta('meta[name="robots"]', { name: 'robots', content: robots })
     upsertMeta('meta[property="og:type"]', { property: 'og:type', content: type })
     upsertMeta('meta[property="og:title"]', { property: 'og:title', content: pageTitle })
@@ -60,7 +80,33 @@ export default function Seo({
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
     upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: image })
     upsertLink('link[rel="canonical"]', { rel: 'canonical', href: canonical })
-  }, [description, image, noindex, path, title, type])
+
+    // Dynamic JSON-LD Structured Data for specific pages
+    if (schema) {
+      upsertScript('dynamic-page-schema', schema)
+    } else if (normalizedPath !== '/') {
+      // Default breadcrumb for sub-pages
+      const breadcrumbData = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Home',
+            'item': `${SITE_BASE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            'position': 2,
+            'name': title || 'Page',
+            'item': canonical,
+          },
+        ],
+      }
+      upsertScript('dynamic-page-schema', breadcrumbData)
+    }
+  }, [description, image, keywords, noindex, path, schema, title, type])
 
   return null
 }

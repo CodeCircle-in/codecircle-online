@@ -28,95 +28,108 @@ export default function RecentUploads() {
   }, [limit])
 
   return (
-    <section className="section-padding border-t border-white/8">
+    <section className="section-padding bg-canvas border-t border-canvas-soft">
       <div className="container-width">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4"
         >
           <div>
-            <p className="label-text mb-4">Resources Hub</p>
-            <h2 className="heading-lg text-white">Latest resources shared</h2>
+            <p className="label-text mb-3">Resources Hub</p>
+            <h2 className="heading-lg">Latest resources shared</h2>
+            <p className="body-muted mt-2 max-w-lg">
+              Fresh learning materials, guides, and tools contributed by students.
+            </p>
           </div>
           <div className="flex items-center gap-3">
             {limit !== 'all' && total > 0 && (
               <button
                 onClick={() => setLimit('all')}
-                className="btn-primary text-sm flex items-center gap-2"
+                className="btn-secondary text-sm flex items-center gap-2"
               >
                 <Grid size={14} /> View All ({total})
               </button>
             )}
-            <a href="/submit-resource" className="btn-ghost text-sm flex items-center gap-2">
+            <Link to="/submit-resource" className="btn-primary text-sm flex items-center gap-2">
               Upload resource <ArrowRight size={14} />
-            </a>
+            </Link>
           </div>
         </motion.div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="glass rounded-2xl h-44 animate-pulse" />
+              <div key={i} className="bg-canvas-soft rounded-wise-xl h-64 animate-pulse" />
             ))}
           </div>
         ) : resources.length === 0 ? (
-          <div className="glass rounded-xl p-8 text-sm text-neutral-500">
-            No resources uploaded yet.
+          <div className="bg-canvas-soft rounded-wise-xl p-10 text-center text-body">
+            No resources uploaded yet. Be the first to share one!
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resources.map((resource, i) => {
               const category = getCategory(resource.category)
               return (
-              <motion.div
-                key={resource._id}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.03, duration: 0.4 }}
-              >
-                <Link
-                  to={`/resources/${resource._id}`}
-                  className="group glass rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col justify-between"
+                <motion.div
+                  key={resource._id}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04, duration: 0.4 }}
                 >
-                  <div>
-                    {resource.image ? (
-                      <img src={resource.image} alt={resource.title} className="w-full h-40 object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                    ) : (
-                      <div className="w-full h-40 bg-white/5" />
-                    )}
-                    <div className="p-5">
-                      {category && (
-                        <span className="mb-2 flex items-center gap-2 font-semibold tracking-wider uppercase text-[10px]" style={{ color: category.accent }}>
-                          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: category.accent }} />
-                          {category.title}
-                        </span>
+                  <Link
+                    to={`/resources/${resource._id}`}
+                    className="group bg-canvas-soft rounded-wise-xl overflow-hidden hover:bg-[#dfe3dc] transition-all duration-200 flex flex-col justify-between h-full border border-transparent hover:border-ink/10"
+                  >
+                    <div>
+                      {resource.image ? (
+                        <div className="w-full h-44 overflow-hidden bg-white/40">
+                          <img
+                            src={resource.image}
+                            alt={resource.title}
+                            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full h-44 bg-canvas flex items-center justify-center text-mute border-b border-canvas-soft">
+                          <Link2 size={24} className="opacity-40" />
+                        </div>
                       )}
-                      <h3 className="font-medium text-white text-base mb-2 line-clamp-2">{resource.title}</h3>
-                      <p className="text-sm text-neutral-500 line-clamp-2">{resource.description}</p>
+                      <div className="p-6">
+                        {category && (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-wise-pill text-xs font-semibold mb-3 bg-white text-ink border border-canvas-soft"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: category.accent }} />
+                            {category.title}
+                          </span>
+                        )}
+                        <h3 className="font-semibold text-ink text-lg mb-2 line-clamp-2 group-hover:text-ink transition-colors">
+                          {resource.title}
+                        </h3>
+                        <p className="text-sm text-body line-clamp-2 leading-relaxed">
+                          {resource.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-5 pt-0 mt-auto">
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-700">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={10} />
-                        {new Date(resource.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                      <span className="flex items-center gap-1 min-w-0">
-                        <User size={10} />
-                        <span className="truncate">{resource.submittedBy?.name || 'Contributor'}</span>
-                      </span>
-                      <span className="flex items-center gap-1 truncate text-violet-400/80 group-hover:text-violet-400">
-                        <Link2 size={10} />
-                        Open details
-                      </span>
+                    <div className="p-6 pt-0 mt-auto">
+                      <div className="pt-4 border-t border-[#d8dcd5] flex items-center justify-between text-xs text-mute">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar size={12} />
+                          {new Date(resource.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <span className="flex items-center gap-1.5 max-w-[130px] truncate">
+                          <User size={12} />
+                          <span className="truncate">{resource.submittedBy?.name || 'Contributor'}</span>
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
+                  </Link>
+                </motion.div>
               )
             })}
           </div>
@@ -126,7 +139,7 @@ export default function RecentUploads() {
           <div className="mt-8 text-center sm:hidden">
             <button
               onClick={() => setLimit('all')}
-              className="btn-primary text-sm w-full py-3"
+              className="btn-secondary text-sm w-full py-3"
             >
               View All Resources ({total})
             </button>

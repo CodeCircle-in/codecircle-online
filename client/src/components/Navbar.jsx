@@ -39,103 +39,103 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
-        <motion.nav
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-          className={`w-full max-w-4xl rounded-2xl transition-all duration-300 ${
-            scrolled
-              ? 'glass-strong shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
-              : 'glass'
-          }`}
-        >
-          <div className="flex items-center justify-between px-5 py-3">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
-                <span className="font-mono text-xs font-bold text-white">CC</span>
-              </div>
-              <span className="font-medium text-white text-sm tracking-tight hidden sm:block">
-                CodeCircle
-              </span>
-            </Link>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-canvas/95 backdrop-blur-md shadow-[0_1px_0_0_#e8ebe6]'
+            : 'bg-canvas'
+        }`}
+      >
+        <div className="container-width flex items-center justify-between px-6 py-3">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 shrink-0"
+            title="CodeCircle (Code Circle) — CodeCircle.online"
+            aria-label="CodeCircle Home"
+          >
+            <div className="w-8 h-8 rounded-wise-md bg-primary flex items-center justify-center">
+              <span className="font-display text-sm font-black text-on-primary">CC</span>
+            </div>
+            <span className="font-bold text-ink text-sm tracking-tight hidden sm:block">
+              CodeCircle
+            </span>
+          </Link>
 
-            {/* Desktop links */}
-            <ul className="hidden md:flex items-center gap-1">
-              {navLinks.map(({ label, to }) => (
-                <li key={label}>
-                  {to.startsWith('/#') ? (
-                    <button
-                      onClick={() => handleNavClick(to)}
-                      className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white rounded-lg hover:bg-white/5 transition-all"
-                    >
-                      {label}
-                    </button>
-                  ) : (
-                    <Link
-                      to={to}
-                      className={`px-3 py-1.5 text-sm rounded-lg hover:bg-white/5 transition-all ${
-                        location.pathname === to ? 'text-white' : 'text-neutral-400 hover:text-white'
-                      }`}
-                    >
-                      {label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-              {user && (
-                <li>
+          {/* Desktop links */}
+          <ul className="hidden md:flex items-center gap-1">
+            {navLinks.map(({ label, to }) => (
+              <li key={label}>
+                {to.startsWith('/#') ? (
+                  <button
+                    onClick={() => handleNavClick(to)}
+                    className="px-3 py-1.5 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all"
+                  >
+                    {label}
+                  </button>
+                ) : (
                   <Link
-                    to="/dashboard"
-                    className={`px-3 py-1.5 text-sm rounded-lg hover:bg-white/5 transition-all ${
-                      location.pathname === '/dashboard' ? 'text-white' : 'text-neutral-400 hover:text-white'
+                    to={to}
+                    className={`px-3 py-1.5 text-sm font-semibold rounded-wise-xl hover:bg-canvas-soft transition-all ${
+                      location.pathname === to ? 'text-ink' : 'text-body hover:text-ink'
                     }`}
                   >
-                    Dashboard
+                    {label}
                   </Link>
-                </li>
-              )}
-              {user?.isAdmin && (
-                <li>
-                  <Link to="/admin" className="px-3 py-1.5 text-sm text-neutral-400 hover:text-white rounded-lg hover:bg-white/5 transition-all">
-                    Admin
-                  </Link>
-                </li>
-              )}
-            </ul>
-
-            {/* Auth */}
-            <div className="hidden md:flex items-center gap-2">
-              {user ? (
-                <div className="flex items-center gap-3">
-                  <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full border border-white/20" />
-                  <span className="text-sm text-neutral-300">{user.name.split(' ')[0]}</span>
-                  <button onClick={logout} className="text-xs text-neutral-500 hover:text-white transition-colors">
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => loginWithGoogle('/dashboard')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-medium rounded-xl hover:bg-neutral-100 transition-colors"
+                )}
+              </li>
+            ))}
+            {user && (
+              <li>
+                <Link
+                  to="/dashboard"
+                  className={`px-3 py-1.5 text-sm font-semibold rounded-wise-xl hover:bg-canvas-soft transition-all ${
+                    location.pathname === '/dashboard' ? 'text-ink' : 'text-body hover:text-ink'
+                  }`}
                 >
-                  <GoogleIcon />
-                  Sign in
-                </button>
-              )}
-            </div>
+                  Dashboard
+                </Link>
+              </li>
+            )}
+            {user?.isAdmin && (
+              <li>
+                <Link to="/admin" className="px-3 py-1.5 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all">
+                  Admin
+                </Link>
+              </li>
+            )}
+          </ul>
 
-            {/* Mobile toggle */}
-            <button
-              onClick={() => setMobileOpen(v => !v)}
-              className="md:hidden p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-            >
-              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+          {/* Auth */}
+          <div className="hidden md:flex items-center gap-3">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full ring-2 ring-canvas-soft" />
+                <span className="text-sm font-semibold text-ink">{user.name.split(' ')[0]}</span>
+                <button onClick={logout} className="text-xs font-semibold text-mute hover:text-ink transition-colors">
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => loginWithGoogle('/dashboard')}
+                className="btn-primary text-sm py-2 px-5"
+              >
+                <GoogleIcon />
+                Sign in
+              </button>
+            )}
           </div>
-        </motion.nav>
-      </div>
+
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setMobileOpen(v => !v)}
+            className="md:hidden p-2 text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-colors"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </nav>
 
       {/* Mobile menu */}
       <AnimatePresence>
@@ -145,22 +145,22 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-20 left-4 right-4 z-40 glass-strong rounded-2xl p-4"
+            className="fixed top-14 left-0 right-0 z-40 bg-canvas border-b border-canvas-soft px-6 pb-4 shadow-lg"
           >
-            <ul className="flex flex-col gap-1">
+            <ul className="flex flex-col gap-1 pt-2">
               {navLinks.map(({ label, to }) => (
                 <li key={label}>
                   {to.startsWith('/#') ? (
                     <button
                       onClick={() => { handleNavClick(to); setMobileOpen(false) }}
-                      className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                      className="w-full text-left px-4 py-3 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all"
                     >
                       {label}
                     </button>
                   ) : (
                     <Link
                       to={to}
-                      className="block px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                      className="block px-4 py-3 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all"
                     >
                       {label}
                     </Link>
@@ -171,7 +171,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     to="/dashboard"
-                    className="block px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                    className="block px-4 py-3 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all"
                   >
                     Dashboard
                   </Link>
@@ -181,24 +181,24 @@ export default function Navbar() {
                 <li>
                   <Link
                     to="/admin"
-                    className="block px-4 py-3 text-sm text-neutral-300 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+                    className="block px-4 py-3 text-sm font-semibold text-body hover:text-ink rounded-wise-xl hover:bg-canvas-soft transition-all"
                   >
                     Admin
                   </Link>
                 </li>
               )}
             </ul>
-            <div className="mt-3 pt-3 border-t border-white/8">
+            <div className="mt-3 pt-3 border-t border-canvas-soft">
               {user ? (
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
                     <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full" />
-                    <span className="text-sm text-neutral-300">{user.name}</span>
+                    <span className="text-sm font-semibold text-ink">{user.name}</span>
                   </div>
-                  <button onClick={logout} className="text-xs text-neutral-500 hover:text-white transition-colors">Sign out</button>
+                  <button onClick={logout} className="text-xs font-semibold text-mute hover:text-ink transition-colors">Sign out</button>
                 </div>
               ) : (
-                <button onClick={() => loginWithGoogle('/dashboard')} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-neutral-100 transition-colors">
+                <button onClick={() => loginWithGoogle('/dashboard')} className="btn-primary w-full justify-center text-sm">
                   <GoogleIcon />
                   Sign in with Google
                 </button>

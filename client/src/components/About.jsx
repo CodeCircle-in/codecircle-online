@@ -20,7 +20,7 @@ const pillars = [
 
 export default function About() {
   return (
-    <section id="about" className="section-padding border-t border-white/8">
+    <section id="about" className="section-padding bg-canvas">
       <div className="container-width">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
           {/* Left */}
@@ -31,22 +31,18 @@ export default function About() {
             transition={{ duration: 0.6 }}
           >
             <p className="label-text mb-4">About</p>
-            <h2 className="heading-lg text-white mb-6">
+            <h2 className="heading-lg mb-6">
               Built by students,
               <br />
-              <span className="text-neutral-500">for students</span>
+              <span className="text-body">for students</span>
             </h2>
             <p className="body-muted mb-4">
-              CodeCircle is a vibrant open student community dedicated to empowering future developers
-              and tech enthusiasts. We exist to bridge the gap between learning and real-world
-              opportunities.
+              <strong>CodeCircle</strong> (also known as <strong>Code Circle</strong>, accessible at <strong>CodeCircle.online</strong>) is a vibrant open student tech community dedicated to empowering future developers and tech enthusiasts. We exist to bridge the gap between learning and real-world career opportunities.
             </p>
             <p className="body-muted">
-              Everything we share — internship leads, open source projects, learning resources, event
-              announcements — comes from community members who are students themselves, navigating the
-              same challenges.
+              Everything shared across <strong>CodeCircle</strong> — internship leads, open source projects, coding tutorials, Linux and cybersecurity guides, event announcements — is curated by student developers navigating the same educational challenges.
             </p>
-            <div className="mt-8 flex gap-2">
+            <div className="mt-8 flex gap-3">
               <a
                 href="https://chat.whatsapp.com/G9coEcncT13EjxeVbk2xAE"
                 target="_blank"
@@ -67,7 +63,7 @@ export default function About() {
           </motion.div>
 
           {/* Right — pillars */}
-          <div className="flex flex-col gap-px bg-white/8 rounded-2xl overflow-hidden border border-white/8">
+          <div className="flex flex-col gap-4">
             {pillars.map((p, i) => (
               <motion.div
                 key={p.title}
@@ -75,15 +71,15 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="bg-surface-0 px-6 py-5 hover:bg-surface-1 transition-colors"
+                className="card-sage hover:bg-primary-pale transition-colors"
               >
                 <div className="flex items-start gap-4">
-                  <span className="font-mono text-xs text-neutral-700 mt-0.5 shrink-0">
+                  <span className="text-xs font-black text-mute mt-0.5 shrink-0">
                     0{i + 1}
                   </span>
                   <div>
-                    <h3 className="font-medium text-white mb-1.5">{p.title}</h3>
-                    <p className="text-sm text-neutral-500 leading-relaxed">{p.description}</p>
+                    <h3 className="font-semibold text-ink mb-1.5">{p.title}</h3>
+                    <p className="text-sm text-body leading-relaxed">{p.description}</p>
                   </div>
                 </div>
               </motion.div>

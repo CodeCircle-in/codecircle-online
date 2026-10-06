@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Check, Edit2, Plus, Save, Sparkles, UploadCloud, X,
-  Award, Download, Share2, Trophy, ChevronRight,
-  Zap, Flame, Crown,
+  Award, Download, Share2, Trophy, Zap, Flame, Crown, Trash2
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES } from '../components/CategoriesSection'
@@ -15,9 +14,7 @@ import BadgeCard, { TIER_META } from '../components/BadgeCard'
 import ShareCard from '../components/ShareCard'
 
 const API = getApiBase()
-
 const emptyForm = { title: '', description: '', category: '', link: '', image: '' }
-
 const TIER_ORDER = ['codespark', 'codeflame', 'codeelite']
 const TIER_THRESHOLDS = { codespark: 1, codeflame: 5, codeelite: 10 }
 const getCategoryMeta = (slug) => CATEGORIES.find(category => category.slug === slug)
@@ -27,24 +24,24 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   // Resource form
-  const [resources, setResources]           = useState([])
-  const [form, setForm]                     = useState(emptyForm)
-  const [editingId, setEditingId]           = useState(null)
-  const [submitting, setSubmitting]         = useState(false)
-  const [message, setMessage]               = useState('')
+  const [resources, setResources]               = useState([])
+  const [form, setForm]                         = useState(emptyForm)
+  const [editingId, setEditingId]               = useState(null)
+  const [submitting, setSubmitting]             = useState(false)
+  const [message, setMessage]                   = useState('')
   const [loadingResources, setLoadingResources] = useState(true)
 
   // Badges & certificates
-  const [badgeData, setBadgeData]           = useState(null)  // { badges, currentMonth }
-  const [certificates, setCertificates]     = useState([])
-  const [loadingBadges, setLoadingBadges]   = useState(true)
+  const [badgeData, setBadgeData]               = useState(null)
+  const [certificates, setCertificates]         = useState([])
+  const [loadingBadges, setLoadingBadges]       = useState(true)
 
   // Leaderboard (for rank)
-  const [leaderboard, setLeaderboard]       = useState([])
+  const [leaderboard, setLeaderboard]           = useState([])
 
   // UI
-  const [showShare, setShowShare]           = useState(false)
-  const [downloading, setDownloading]       = useState(null) // cert._id
+  const [showShare, setShowShare]               = useState(false)
+  const [downloading, setDownloading]           = useState(null)
 
   useEffect(() => {
     if (!loading && !user) loginWithGoogle('/dashboard')
@@ -76,12 +73,17 @@ export default function Dashboard() {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  // ── Resource form helpers ──────────────────────────────────────────────────
   const startEdit = (resource) => {
     setEditingId(resource._id)
-    setForm({ title: resource.title || '', description: resource.description || '', category: resource.category || '', link: resource.link || '', image: resource.image || '' })
+    setForm({
+      title: resource.title || '',
+      description: resource.description || '',
+      category: resource.category || '',
+      link: resource.link || '',
+      image: resource.image || ''
+    })
     setMessage('')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 300, behavior: 'smooth' })
   }
 
   const resetForm = () => { setEditingId(null); setForm(emptyForm) }
@@ -125,7 +127,6 @@ export default function Dashboard() {
     }
   }
 
-  // ── Certificate download ──────────────────────────────────────────────────
   const downloadCertificate = async (cert) => {
     setDownloading(cert._id)
     try {
@@ -135,7 +136,6 @@ export default function Dashboard() {
       link.href     = imageData
       link.download = `CodeCircle_${badgeName}_Certificate.png`
       link.click()
-      // Mark downloaded in local state
       setCertificates(prev => prev.map(c => c._id === cert._id ? { ...c, downloaded: true } : c))
     } catch {
       setMessage('Could not download certificate.')
@@ -144,19 +144,16 @@ export default function Dashboard() {
     }
   }
 
-  // ── Derived values ────────────────────────────────────────────────────────
   const currentMonth = badgeData?.currentMonth
   const myRank       = leaderboard.findIndex(e => String(e.userId) === String(user?._id)) + 1 || null
   const profileUrl   = user ? `${window.location.origin}/u/${user.username || user._id}` : ''
   const selectedCategory = getCategoryMeta(form.category)
 
-  // Progress bar toward next badge
   const count        = currentMonth?.resourceCount || 0
   const nextTier     = currentMonth?.nextTier
   const nextTarget   = nextTier ? TIER_THRESHOLDS[nextTier.tier] : 10
   const progress     = nextTier ? Math.min((count / nextTarget) * 100, 100) : 100
 
-  // Latest (highest tier) badge this month
   const latestBadgesThisMonth = badgeData?.badges?.filter(b => {
     const now = new Date()
     return b.month === now.getMonth() + 1 && b.year === now.getFullYear()
@@ -167,266 +164,299 @@ export default function Dashboard() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen pt-28 pb-24 px-6 flex items-center justify-center">
-        <div className="text-neutral-500 text-sm">Loading your dashboard...</div>
+      <div className="min-h-screen bg-canvas pt-32 pb-24 px-6 flex items-center justify-center">
+        <div className="text-body text-sm font-medium animate-pulse">Loading dashboard...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-24 px-6">
+    <div className="min-h-screen bg-canvas">
       <Seo title="Dashboard" description="Manage your uploaded resources and contributions on CodeCircle." path="/dashboard" noindex />
 
-      <div className="container-width space-y-10">
-
-        {/* ── Header ───────────────────────────────────────────────────────── */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="label-text mb-3">Contributor Dashboard</p>
-            <h1 className="heading-lg text-white">Hi, {user.name.split(' ')[0]} 👋</h1>
-            <p className="body-muted mt-3 max-w-xl">
-              Manage your resources, track your badge progress, and download your certificates.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => setShowShare(true)} className="btn-ghost text-sm flex items-center gap-2">
-              <Share2 size={14} /> Share Profile
-            </button>
-            <button onClick={() => navigate('/submit-resource')} className="btn-ghost text-sm flex items-center gap-2">
-              <UploadCloud size={14} /> Upload resource
-            </button>
-          </div>
-        </div>
-
-        {/* ── Stats Row ────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: 'Total uploads', value: resources.length, icon: <Sparkles size={16} /> },
-            { label: 'This month',    value: count,             icon: <Zap size={16} /> },
-            { label: 'Leaderboard',   value: myRank ? `#${myRank}` : '—', icon: <Trophy size={16} /> },
-            { label: 'Certificates',  value: certificates.length, icon: <Award size={16} /> },
-          ].map(stat => (
-            <div key={stat.label} className="glass rounded-xl p-4 flex flex-col gap-2">
-              <div className="text-neutral-600">{stat.icon}</div>
-              <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs text-neutral-500">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Badges & Certificates ─────────────────────────────────────────── */}
-        <div className="glass rounded-2xl p-6 md:p-8 space-y-6">
-          <div className="flex items-center justify-between">
+      {/* Wise Hero Header Band */}
+      <section className="bg-canvas-soft pt-32 pb-14 border-b border-[#d8dcd5] px-6">
+        <div className="container-width">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className="text-white font-medium text-lg flex items-center gap-2"><Award size={18} /> Badges & Certificates</h2>
-              <p className="text-sm text-neutral-500 mt-1">Share 1, 5, or 10 resources per month to unlock badges.</p>
+              <p className="label-text mb-2">Contributor Hub</p>
+              <h1 className="heading-xl">Hi, {user.name.split(' ')[0]} 👋</h1>
+              <p className="body-muted mt-2 max-w-xl text-base md:text-lg">
+                Track your badge progress, manage your community uploads, and download verified certificates.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <button onClick={() => setShowShare(true)} className="btn-primary text-sm flex items-center gap-2">
+                <Share2 size={15} /> Share Profile
+              </button>
+              <button onClick={() => navigate('/submit-resource')} className="btn-secondary text-sm flex items-center gap-2">
+                <UploadCloud size={15} /> Upload resource
+              </button>
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-neutral-500">
-              <span>{count} resource{count !== 1 ? 's' : ''} shared this month</span>
-              {nextTier && <span>Next: {nextTier.badgeName} at {nextTarget}</span>}
-              {!nextTier && count >= 10 && <span className="text-yellow-400">👑 Max tier reached!</span>}
-            </div>
-            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className={`h-full rounded-full ${
-                  currentMonth?.currentTier?.tier === 'codeelite' ? 'bg-yellow-400' :
-                  currentMonth?.currentTier?.tier === 'codeflame' ? 'bg-orange-400' :
-                  'bg-violet-500'
-                }`}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-neutral-700">
-              <span className="flex items-center gap-1"><Zap size={10} /> 1 Spark</span>
-              <span className="flex items-center gap-1"><Flame size={10} /> 5 Catalyst</span>
-              <span className="flex items-center gap-1"><Crown size={10} /> 10 Titan</span>
-            </div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+            {[
+              { label: 'Total Uploads', value: resources.length, icon: <Sparkles size={18} className="text-primary-deep" /> },
+              { label: 'This Month',    value: count,             icon: <Zap size={18} className="text-warning-deep" /> },
+              { label: 'Leaderboard',   value: myRank ? `#${myRank}` : '—', icon: <Trophy size={18} className="text-positive" /> },
+              { label: 'Certificates',  value: certificates.length, icon: <Award size={18} className="text-ink" /> },
+            ].map(stat => (
+              <div key={stat.label} className="bg-canvas rounded-wise-xl p-6 border border-canvas-soft shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-mute uppercase tracking-wider">{stat.label}</span>
+                  {stat.icon}
+                </div>
+                <div className="text-3xl font-black text-ink">{stat.value}</div>
+              </div>
+            ))}
           </div>
-
-          {/* Badge grid — current month (if any) + all past */}
-          {loadingBadges ? (
-            <div className="grid grid-cols-3 gap-3">
-              {[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-2xl bg-white/5 animate-pulse" />)}
-            </div>
-          ) : badgeData?.badges?.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {badgeData.badges.map(badge => (
-                <BadgeCard key={badge._id} tier={badge.tier} month={badge.month} year={badge.year} count={badge.resourceCount} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-neutral-500 py-2">
-              No badges yet. Share your first resource to earn the <span className="text-violet-400">⚡ Spark</span> badge!
-            </div>
-          )}
-
-          {/* Certificates */}
-          {certificates.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-xs uppercase tracking-widest text-neutral-600">Your certificates</div>
-              {certificates.map(cert => {
-                const meta = TIER_META[cert.tier]
-                const monthName = new Date(cert.year, cert.month - 1).toLocaleString('default', { month: 'long' })
-                return (
-                  <motion.div
-                    key={cert._id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`flex items-center gap-4 rounded-xl border p-4 ${meta?.bg} ${meta?.border}`}
-                  >
-                    {meta?.iconUrl ? (
-                      <img src={meta.iconUrl} className="w-8 h-8 object-contain" alt={cert.badgeName} />
-                    ) : (
-                      <span className="text-2xl">{meta?.icon}</span>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className={`font-semibold text-sm ${meta?.color}`}>{cert.badgeName}</div>
-                      <div className="text-xs text-neutral-500 mt-0.5">{monthName} {cert.year} · {cert.resourceCount} resource{cert.resourceCount !== 1 ? 's' : ''}</div>
-                      {cert.downloaded && <div className="text-xs text-green-500 mt-0.5">Already downloaded</div>}
-                    </div>
-                    <button
-                      onClick={() => downloadCertificate(cert)}
-                      disabled={downloading === cert._id}
-                      className="btn-primary text-xs flex items-center gap-1.5 shrink-0"
-                    >
-                      <Download size={12} />
-                      {downloading === cert._id ? 'Downloading...' : 'Download'}
-                    </button>
-                  </motion.div>
-                )
-              })}
-            </div>
-          )}
-
-          {certificates.length === 0 && !loadingBadges && (
-            <div className="text-xs text-neutral-600">
-              Certificates are generated by the admin and will appear here once issued.
-            </div>
-          )}
         </div>
+      </section>
 
-        {/* ── Resource Form + Uploads Grid ─────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)] gap-8 items-start">
-          <motion.form
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            onSubmit={submit}
-            className="glass rounded-2xl p-6 md:p-8 flex min-w-0 flex-col gap-4"
-          >
-            <div className="flex items-center justify-between gap-4">
+      {/* Main Content Area */}
+      <section className="section-padding px-6">
+        <div className="container-width space-y-12">
+
+          {/* ── Badges & Certificates Box ─────────────────────────────────────────── */}
+          <div className="bg-canvas-soft rounded-wise-xl p-8 md:p-10 border border-canvas-soft space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-white font-medium text-lg">{editingId ? 'Edit your resource' : 'Upload a resource'}</h2>
-                <p className="text-sm text-neutral-500 mt-1">{editingId ? 'Update the selected upload.' : 'Add a new contribution for the community.'}</p>
+                <h2 className="heading-md flex items-center gap-2.5">
+                  <Award size={22} className="text-positive-deep" /> Badges & Certificates
+                </h2>
+                <p className="text-sm text-body mt-1">
+                  Share 1 (Spark), 5 (Catalyst), or 10 (Titan) resources in a calendar month to unlock verifiable credentials.
+                </p>
               </div>
-              {editingId && (
-                <button type="button" onClick={resetForm} className="btn-ghost text-sm"><X size={14} /> Cancel</button>
-              )}
             </div>
 
-            <input required value={form.title} onChange={e => setForm(cur => ({ ...cur, title: e.target.value }))} placeholder="Title" className="input-base" />
-            <textarea required value={form.description} onChange={e => setForm(cur => ({ ...cur, description: e.target.value }))} placeholder="Description" rows={4} className="input-base" />
-            <div className="flex flex-col gap-3">
-              <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Category</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
-                {CATEGORIES.map(category => {
-                  const active = form.category === category.slug
-                  return (
-                    <button
-                      key={category.slug}
-                      type="button"
-                      onClick={() => setForm(cur => ({ ...cur, category: category.slug }))}
-                      className={`flex min-w-0 items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors ${active ? 'bg-white/10 border-white/25' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
-                    >
-                      <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: category.accent }} />
-                      <span className="text-sm text-white flex-1 min-w-0 leading-snug">{category.title}</span>
-                      {active && <Check size={14} className="text-green-400 shrink-0" />}
-                    </button>
-                  )
-                })}
+            {/* Progress Bar */}
+            <div className="bg-canvas rounded-wise-lg p-6 border border-canvas-soft space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-ink">{count} resource{count !== 1 ? 's' : ''} shared this month</span>
+                {nextTier && <span className="text-body">Next milestone: {nextTier.badgeName} at {nextTarget}</span>}
+                {!nextTier && count >= 10 && <span className="text-warning-deep">👑 Maximum tier achieved this month!</span>}
               </div>
-              {selectedCategory && (
-                <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: selectedCategory.accent }}>
-                  Selected: {selectedCategory.title}
+              <div className="h-2.5 bg-canvas-soft rounded-wise-pill overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className="h-full rounded-wise-pill bg-primary"
+                />
+              </div>
+              <div className="flex justify-between text-xs font-semibold text-mute pt-1">
+                <span className="flex items-center gap-1"><Zap size={11} /> 1 Spark</span>
+                <span className="flex items-center gap-1"><Flame size={11} /> 5 Catalyst</span>
+                <span className="flex items-center gap-1"><Crown size={11} /> 10 Titan</span>
+              </div>
+            </div>
+
+            {/* Badges Grid */}
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-mute mb-4">Earned Badges</h3>
+              {loadingBadges ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => <div key={i} className="h-36 rounded-wise-xl bg-canvas animate-pulse" />)}
+                </div>
+              ) : badgeData?.badges?.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {badgeData.badges.map(badge => (
+                    <BadgeCard key={badge._id} tier={badge.tier} month={badge.month} year={badge.year} count={badge.resourceCount} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-canvas rounded-wise-lg p-6 text-sm text-body border border-canvas-soft">
+                  No badges yet. Upload your first resource to unlock the <strong>Spark</strong> badge!
                 </div>
               )}
             </div>
-            <input required value={form.link} onChange={e => setForm(cur => ({ ...cur, link: e.target.value }))} placeholder="Resource URL" className="input-base" />
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-[0.2em] text-neutral-600">Image upload</label>
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-medium file:text-black hover:file:bg-neutral-100" />
-              {form.image && <p className="text-xs text-neutral-500">Image selected.</p>}
-            </div>
 
-            {message && <div className="text-sm text-neutral-300">{message}</div>}
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button type="submit" disabled={submitting} className="btn-primary">
-                <Save size={14} /> {submitting ? 'Saving...' : editingId ? 'Save changes' : 'Publish resource'}
-              </button>
-              <button type="button" onClick={resetForm} className="btn-ghost"><Plus size={14} /> New upload</button>
-            </div>
-          </motion.form>
-
-          {/* Uploads list */}
-          <div className="glass min-w-0 rounded-2xl p-6 md:p-8">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <h2 className="text-white font-medium text-lg">Your uploads</h2>
-                <p className="text-sm text-neutral-500 mt-1">Everything you've shared so far.</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2 text-xs text-neutral-600">
-                <Sparkles size={12} /> {resources.length} total
-              </div>
-            </div>
-
-            {loadingResources ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-white/5 animate-pulse" />)}
-              </div>
-            ) : resources.length === 0 ? (
-              <div className="text-sm text-neutral-500">You haven't uploaded any resources yet.</div>
-            ) : (
-              <div className="space-y-3 max-h-[680px] overflow-auto pr-1">
-                {resources.map(resource => (
-                  <div key={resource._id} className="overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-start gap-3">
-                      {resource.image
-                        ? <img src={resource.image} alt={resource.title} className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                        : <div className="w-14 h-14 rounded-lg bg-white/5 shrink-0" />
-                      }
-                      <div className="min-w-0 flex-1">
-                        {getCategoryMeta(resource.category) && (
-                          <div className="mb-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: getCategoryMeta(resource.category).accent }}>
-                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: getCategoryMeta(resource.category).accent }} />
-                            {getCategoryMeta(resource.category).title}
-                          </div>
+            {/* Certificates List */}
+            {certificates.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-mute mb-3">Issued Certificates</h3>
+                {certificates.map(cert => {
+                  const meta = TIER_META[cert.tier]
+                  const monthName = new Date(cert.year, cert.month - 1).toLocaleString('default', { month: 'long' })
+                  return (
+                    <motion.div
+                      key={cert._id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-canvas rounded-wise-lg border border-canvas-soft p-5 flex items-center justify-between gap-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-4">
+                        {meta?.iconUrl ? (
+                          <img src={meta.iconUrl} className="w-10 h-10 object-contain rounded-full" alt={cert.badgeName} />
+                        ) : (
+                          <span className="text-3xl">{meta?.icon}</span>
                         )}
-                        <div className="truncate text-sm font-medium text-white">{resource.title}</div>
-                        <div className="mt-1 line-clamp-2 break-words text-xs text-neutral-500">{resource.description}</div>
-                        <div className="mt-2 flex min-w-0 items-center gap-2 text-xs text-neutral-600">
-                          <span className="block min-w-0 truncate font-mono">{resource.link}</span>
+                        <div>
+                          <div className={`font-bold text-base ${meta?.color}`}>{cert.badgeName} Certificate</div>
+                          <div className="text-xs text-mute font-medium mt-0.5">
+                            {monthName} {cert.year} · {cert.resourceCount} contributions
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-4 flex items-center gap-2">
-                      <button onClick={() => startEdit(resource)} className="btn-ghost text-xs"><Edit2 size={12} /> Edit</button>
-                      <button onClick={() => removeResource(resource._id)} className="btn-ghost text-xs">Delete</button>
-                    </div>
-                  </div>
-                ))}
+                      <button
+                        onClick={() => downloadCertificate(cert)}
+                        disabled={downloading === cert._id}
+                        className="btn-primary text-xs py-2 px-4"
+                      >
+                        <Download size={13} />
+                        <span>{downloading === cert._id ? 'Generating...' : 'Download PNG'}</span>
+                      </button>
+                    </motion.div>
+                  )
+                })}
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* ── Share Modal ───────────────────────────────────────────────────── */}
+          {/* ── Resource Form + Uploads List ─────────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)] gap-8 items-start">
+            {/* Form */}
+            <motion.form
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={submit}
+              className="bg-canvas-soft rounded-wise-xl p-8 border border-canvas-soft flex flex-col gap-5"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-ink">{editingId ? 'Edit Resource' : 'Upload Resource'}</h2>
+                  <p className="text-xs text-mute mt-1">{editingId ? 'Modify details of your upload.' : 'Share a new contribution.'}</p>
+                </div>
+                {editingId && (
+                  <button type="button" onClick={resetForm} className="btn-secondary text-xs"><X size={13} /> Cancel</button>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1.5">Title</label>
+                <input required value={form.title} onChange={e => setForm(cur => ({ ...cur, title: e.target.value }))} placeholder="Resource title" className="input-base" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1.5">Description</label>
+                <textarea required value={form.description} onChange={e => setForm(cur => ({ ...cur, description: e.target.value }))} placeholder="Description & highlights" rows={3} className="input-base" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-2">Category</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+                  {CATEGORIES.map(category => {
+                    const active = form.category === category.slug
+                    return (
+                      <button
+                        key={category.slug}
+                        type="button"
+                        onClick={() => setForm(cur => ({ ...cur, category: category.slug }))}
+                        className={`flex items-center gap-2.5 rounded-wise-md px-3 py-2 text-left transition-colors cursor-pointer text-xs ${
+                          active ? 'bg-canvas border-2 border-primary font-bold' : 'bg-canvas border border-[#d8dcd5] font-medium'
+                        }`}
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: category.accent }} />
+                        <span className="text-ink flex-1 truncate">{category.title}</span>
+                        {active && <Check size={14} className="text-positive shrink-0" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1.5">Link URL</label>
+                <input required value={form.link} onChange={e => setForm(cur => ({ ...cur, link: e.target.value }))} placeholder="https://example.com" className="input-base" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1.5">Image (optional)</label>
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="input-base file:mr-3 file:rounded-wise-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-on-primary hover:file:bg-primary-active file:cursor-pointer" />
+                {form.image && <p className="text-xs text-positive font-semibold mt-1">✓ Image attached</p>}
+              </div>
+
+              {message && (
+                <div className="text-xs font-semibold p-3 bg-canvas border border-canvas-soft rounded-wise-md text-ink">
+                  {message}
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2.5 pt-2">
+                <button type="submit" disabled={submitting} className="btn-primary text-sm flex-1 justify-center">
+                  <Save size={14} />
+                  <span>{submitting ? 'Saving...' : editingId ? 'Update' : 'Publish'}</span>
+                </button>
+                <button type="button" onClick={resetForm} className="btn-secondary text-sm">
+                  <Plus size={14} /> Clear
+                </button>
+              </div>
+            </motion.form>
+
+            {/* Uploads list */}
+            <div className="bg-canvas-soft rounded-wise-xl p-8 border border-canvas-soft">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-ink">Your Uploads</h2>
+                  <p className="text-xs text-mute mt-0.5">Everything you have shared with the community.</p>
+                </div>
+                <span className="rounded-wise-pill bg-canvas px-3 py-1 text-xs font-bold text-ink border border-canvas-soft">
+                  {resources.length} total
+                </span>
+              </div>
+
+              {loadingResources ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-wise-lg bg-canvas animate-pulse" />)}
+                </div>
+              ) : resources.length === 0 ? (
+                <div className="bg-canvas rounded-wise-lg p-8 text-center text-sm text-body border border-canvas-soft">
+                  You haven't uploaded any resources yet. Use the form on the left to share your first!
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[640px] overflow-auto pr-1">
+                  {resources.map(resource => (
+                    <div key={resource._id} className="bg-canvas rounded-wise-lg border border-canvas-soft p-5 shadow-sm">
+                      <div className="flex items-start gap-4">
+                        {resource.image ? (
+                          <img src={resource.image} alt={resource.title} className="w-16 h-16 rounded-wise-md object-cover shrink-0" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-wise-md bg-canvas-soft flex items-center justify-center shrink-0 border border-canvas-soft text-mute">
+                            <Sparkles size={18} className="opacity-40" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          {getCategoryMeta(resource.category) && (
+                            <div className="mb-1.5 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider" style={{ color: getCategoryMeta(resource.category).accent }}>
+                              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: getCategoryMeta(resource.category).accent }} />
+                              {getCategoryMeta(resource.category).title}
+                            </div>
+                          )}
+                          <div className="truncate text-sm font-bold text-ink">{resource.title}</div>
+                          <div className="mt-1 line-clamp-2 text-xs text-body leading-relaxed">{resource.description}</div>
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-canvas-soft flex items-center justify-end gap-2">
+                        <button onClick={() => startEdit(resource)} className="btn-secondary text-xs py-1.5 px-3">
+                          <Edit2 size={12} /> Edit
+                        </button>
+                        <button onClick={() => removeResource(resource._id)} className="btn-secondary text-xs py-1.5 px-3 text-negative hover:bg-[#fee2e2]">
+                          <Trash2 size={12} /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Share Modal */}
       {showShare && (
         <ShareCard
           user={user}

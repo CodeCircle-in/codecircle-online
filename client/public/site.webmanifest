@@ -1,0 +1,17 @@
+{
+  "name": "CodeCircle | Student Tech Community",
+  "short_name": "CodeCircle",
+  "description": "CodeCircle (Code Circle / CodeCircle.online) is a student tech community for students, by students. Explore curated resources, tutorials, internships, and open source opportunities.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#9fe870",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

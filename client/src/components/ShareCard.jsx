@@ -5,14 +5,6 @@ import { TIER_META } from './BadgeCard'
 
 /**
  * ShareCard — modal that lets a user share their profile, badge, and ranking.
- *
- * Props:
- *   user           — { name, avatar }
- *   badge          — badge object from API or null
- *   resourceCount  — total resources shared this month
- *   rank           — current leaderboard rank or null
- *   profileUrl     — shareable public URL for the user's profile
- *   onClose        — callback to close the modal
  */
 export default function ShareCard({ user, badge, resourceCount, rank, profileUrl, onClose }) {
   const [copied, setCopied] = useState(false)
@@ -36,7 +28,7 @@ export default function ShareCard({ user, badge, resourceCount, rank, profileUrl
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)
     } catch {
-      /* fallback: select text */
+      /* fallback */
     }
   }
 
@@ -45,19 +37,19 @@ export default function ShareCard({ user, badge, resourceCount, rank, profileUrl
       label: 'Twitter / X',
       icon: <Twitter size={15} />,
       href: `https://twitter.com/intent/tweet?text=${encodedText}`,
-      color: 'text-sky-400 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20',
+      color: 'bg-canvas-soft text-ink hover:bg-[#dfe3dc] border border-canvas-soft',
     },
     {
       label: 'LinkedIn',
       icon: <Linkedin size={15} />,
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      color: 'text-blue-400 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20',
+      color: 'bg-canvas-soft text-ink hover:bg-[#dfe3dc] border border-canvas-soft',
     },
     {
       label: 'WhatsApp',
       icon: <MessageCircle size={15} />,
       href: `https://wa.me/?text=${encodedText}`,
-      color: 'text-green-400 border-green-500/30 bg-green-500/10 hover:bg-green-500/20',
+      color: 'bg-primary text-on-primary hover:bg-primary-active border border-primary',
     },
   ]
 
@@ -67,19 +59,23 @@ export default function ShareCard({ user, badge, resourceCount, rank, profileUrl
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm"
         onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 20 }}
-          transition={{ type: 'spring', damping: 22, stiffness: 300 }}
-          className="glass rounded-2xl p-6 md:p-8 w-full max-w-md relative"
+          exit={{ opacity: 0, scale: 0.95, y: 16 }}
+          transition={{ duration: 0.2 }}
+          className="bg-canvas rounded-wise-xl p-6 md:p-8 w-full max-w-md relative border border-canvas-soft shadow-2xl"
         >
           {/* Close */}
-          <button onClick={onClose} className="absolute top-4 right-4 p-1 text-neutral-600 hover:text-white transition-colors">
-            <X size={18} />
+          <button
+            onClick={onClose}
+            className="absolute top-5 right-5 p-1.5 rounded-full bg-canvas-soft text-body hover:text-ink transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X size={16} />
           </button>
 
           {/* Profile card preview */}
@@ -87,31 +83,31 @@ export default function ShareCard({ user, badge, resourceCount, rank, profileUrl
             <img
               src={user.avatar}
               alt={user.name}
-              className="w-16 h-16 rounded-full border-2 border-white/20 shadow-lg"
+              className="w-18 h-18 rounded-full border-2 border-primary shadow-sm"
             />
             <div>
-              <div className="text-white font-semibold text-lg">{user.name}</div>
-              <div className="text-xs text-neutral-500 mt-0.5">CodeCircle Contributor</div>
+              <div className="text-ink font-bold text-xl">{user.name}</div>
+              <div className="text-xs font-semibold text-mute uppercase tracking-wider mt-0.5">CodeCircle Contributor</div>
             </div>
 
             {/* Stats row */}
-            <div className="flex items-center gap-4 mt-1">
+            <div className="flex items-center gap-5 mt-2 bg-canvas-soft px-5 py-3 rounded-wise-lg w-full justify-center">
               {resourceCount > 0 && (
                 <div className="text-center">
-                  <div className="text-lg font-bold text-white">{resourceCount}</div>
-                  <div className="text-xs text-neutral-600">resources</div>
+                  <div className="text-lg font-black text-ink">{resourceCount}</div>
+                  <div className="text-xs text-mute font-medium">resources</div>
                 </div>
               )}
               {rank && (
                 <div className="text-center">
-                  <div className="text-lg font-bold text-white">#{rank}</div>
-                  <div className="text-xs text-neutral-600">rank</div>
+                  <div className="text-lg font-black text-ink">#{rank}</div>
+                  <div className="text-xs text-mute font-medium">leaderboard</div>
                 </div>
               )}
               {badge && meta && (
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold ${meta.bg} ${meta.border} ${meta.color}`}>
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-wise-pill border text-xs font-bold ${meta.pillBg} ${meta.border} ${meta.color}`}>
                   {meta.iconUrl ? (
-                    <img src={meta.iconUrl} className="w-4 h-4 object-contain" alt={badge.badgeName} />
+                    <img src={meta.iconUrl} className="w-4 h-4 object-contain rounded-full" alt={badge.badgeName} />
                   ) : (
                     <span>{meta.icon}</span>
                   )}
@@ -122,34 +118,34 @@ export default function ShareCard({ user, badge, resourceCount, rank, profileUrl
           </div>
 
           {/* Profile link */}
-          <div className="mb-4">
-            <div className="text-xs text-neutral-500 mb-2 uppercase tracking-wide">Your profile link</div>
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
-              <ExternalLink size={13} className="text-neutral-600 shrink-0" />
-              <span className="text-xs text-neutral-400 flex-1 truncate font-mono">{profileUrl}</span>
+          <div className="mb-5">
+            <div className="text-xs font-bold text-mute mb-2 uppercase tracking-wider">Your profile link</div>
+            <div className="flex items-center gap-2 bg-canvas-soft border border-[#d8dcd5] rounded-wise-md px-3.5 py-2.5">
+              <ExternalLink size={14} className="text-mute shrink-0" />
+              <span className="text-xs text-body flex-1 truncate font-medium">{profileUrl}</span>
               <button
                 onClick={copyToClipboard}
-                className="shrink-0 flex items-center gap-1 text-xs text-neutral-400 hover:text-white transition-colors"
+                className="shrink-0 flex items-center gap-1 text-xs font-semibold text-ink hover:text-ink/70 transition-colors cursor-pointer"
               >
-                {copied ? <><Check size={12} className="text-green-400" /> Copied!</> : <><Copy size={12} /> Copy</>}
+                {copied ? <><Check size={13} className="text-positive" /> Copied!</> : <><Copy size={13} /> Copy</>}
               </button>
             </div>
           </div>
 
           {/* Share buttons */}
-          <div className="text-xs text-neutral-500 mb-2 uppercase tracking-wide">Share on</div>
-          <div className="flex flex-col gap-2">
+          <div className="text-xs font-bold text-mute mb-2 uppercase tracking-wider">Share on</div>
+          <div className="flex flex-col gap-2.5">
             {shareLinks.map(link => (
               <a
                 key={link.label}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${link.color}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-wise-lg text-sm font-semibold transition-all ${link.color}`}
               >
                 {link.icon}
-                {link.label}
-                <ExternalLink size={12} className="ml-auto opacity-50" />
+                <span>{link.label}</span>
+                <ExternalLink size={13} className="ml-auto opacity-60" />
               </a>
             ))}
           </div>
